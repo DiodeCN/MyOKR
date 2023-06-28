@@ -7,7 +7,7 @@
   "main": "main.cjs",
   "scripts": {
     "start": "electron .",
-    "dev": "concurrently \"npm run electron\" \"npm run vite\"",
+    "dev": "concurrently \"npm run build\" \"npm run electron\" \"npm run vite\"",
     "build": "tsc && vite build",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
