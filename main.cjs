@@ -10,8 +10,7 @@ app.whenReady().then(() => {
     }
   })
 
-  const indexPath = path.join(__dirname, './dist/index.html'); // 替换为你的编译后HTML文件的路径
-  win.loadFile(indexPath);
+  win.loadURL('http://127.0.0.1:5173/')
 })
 
 app.on('window-all-closed', () => {
