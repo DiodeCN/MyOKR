@@ -6,7 +6,7 @@ function createWindow() {
     height: 600,
   });
 
-  win.loadFile('your-webpage.html'); // 替换为你的网页文件路径
+  win.loadFile('http://localhost:3000'); // 替换为你的网页文件路径
 }
 
 app.whenReady().then(createWindow);
