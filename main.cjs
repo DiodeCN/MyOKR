@@ -6,7 +6,7 @@ function createWindow() {
     height: 600,
   });
 
-  win.loadFile('http://localhost:3000'); // 替换为你的网页文件路径
+  win.loadURL('http://localhost:3000'); // 替换为你的网页 URL
 }
 
 app.whenReady().then(createWindow);
