@@ -6,8 +6,7 @@ const CloseButton = () => {
 
     const closeApp = () => {
         const electron = window.require('electron');
-        const window = electron.remote.getCurrentWindow();
-        window.close();
+        electron.ipcRenderer.send('close-app');
     }
 
     return (

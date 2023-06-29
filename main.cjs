@@ -1,7 +1,9 @@
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow, ipcMain } = require('electron')
+
+let win;  // 定义 win 在全局作用域
 
 function createWindow() {
-  const win = new BrowserWindow({
+  win = new BrowserWindow({
     width: 800,
     height: 600,
     frame: false,  // 无边框
@@ -16,6 +18,12 @@ function createWindow() {
 
   win.loadURL('http://127.0.0.1:5173/')
 }
+
+ipcMain.on('close-app', () => {
+  if (win) {
+    win.close();
+  }
+})
 
 app.whenReady().then(createWindow)
 
