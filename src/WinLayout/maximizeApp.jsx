@@ -16,7 +16,7 @@ const MaximizeButton = () => {
             className="button-icon"
             style={{
                 position: 'absolute',
-                right: 40,
+                right: 45,
                 top: 5,
                 borderRadius: 8, // 设置圆角半径
                 backgroundColor: 'transparent',

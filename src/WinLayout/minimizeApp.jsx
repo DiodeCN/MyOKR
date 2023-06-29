@@ -16,7 +16,7 @@ const MinimizeButton = () => {
             className="button-icon"
             style={{
                 position: 'absolute',
-                right: 80,
+                right: 85,
                 top: 5,
                 borderRadius: 8, // 设置圆角半径
                 backgroundColor: 'transparent',

@@ -42,8 +42,5 @@
 }
 
 .button-icon {
-  outline: none;
-  border: none;
-  background-color: transparent;
-  box-shadow: none;
+  color: #ffffff!important;
 }
