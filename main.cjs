@@ -1,29 +1,46 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
+let win;
 
-let win;  // 定义 win 在全局作用域
-
-function createWindow() {
+function createWindow () {
+  // Calculate window size based on screen size
+  const { width, height } = require('electron').screen.getPrimaryDisplay().workAreaSize
   win = new BrowserWindow({
-    width: 800,
-    height: 600,
-    frame: false,  // 无边框
-    titleBarStyle: 'hidden', // 隐藏标题栏
-    resizable: true, // 允许窗口拉伸
+    width: Math.max(Math.round(width * 0.6), 800),
+    height: Math.max(Math.round(height * 0.6), 600),
+    frame: false,
+    titleBarStyle: 'hidden',
+    resizable: true,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      enableRemoteModule: true, // 允许在渲染器进程中使用 remote 模块
+      enableRemoteModule: true,
     }
   })
 
   win.loadURL('http://127.0.0.1:5173/')
-}
 
-ipcMain.on('close-app', () => {
-  if (win) {
-    win.close();
-  }
-})
+  ipcMain.on('close-app', () => {
+    if (win) {
+      win.close()
+    }
+  })
+
+  ipcMain.on('maximize-app', () => {
+    if (win) {
+      if (win.isMaximized()) {
+        win.unmaximize()
+      } else {
+        win.maximize()
+      }
+    }
+  })
+
+  ipcMain.on('minimize-app', () => {
+    if (win) {
+      win.minimize()
+    }
+  })
+}
 
 app.whenReady().then(createWindow)
 
