@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
@@ -7,8 +6,6 @@ import MaximizeButton from './WinLayout/maximizeApp'; // Import the MaximizeButt
 import MinimizeButton from './WinLayout/minimizeApp'; // Import the MinimizeButton component
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
       <div>
@@ -22,18 +19,10 @@ function App() {
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
       </div>
-      <h1>Vite + React</h1>
+      <h1>MyOKR!-ElmCose</h1>
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+      <h2>Advantage is in me...</h2>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
   )
 }
