@@ -10,7 +10,19 @@ const MinimizeButton = () => {
     }
 
     return (
-        <IconButton onClick={minimizeApp} style={{ position: 'absolute', right: 80, top: 0 }}>
+        <IconButton
+            onClick={minimizeApp}
+            variant="text"
+            className="button-icon"
+            style={{
+                position: 'absolute',
+                right: 80,
+                top: 5,
+                borderRadius: 8, // 设置圆角半径
+                backgroundColor: 'transparent',
+                boxShadow: 'none'
+            }}
+        >
             <MinimizeIcon />
         </IconButton>
     );

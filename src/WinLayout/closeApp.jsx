@@ -10,7 +10,19 @@ const CloseButton = () => {
     }
 
     return (
-        <IconButton onClick={closeApp} style={{ position: 'absolute', right: 0, top: 0 }}>
+        <IconButton
+            onClick={closeApp}
+            variant="text"
+            className="button-icon"
+            style={{
+                position: 'absolute',
+                right: 0,
+                top: 5,
+                borderRadius: 8, // 设置圆角半径
+                backgroundColor: 'transparent',
+                boxShadow: 'none'
+            }}
+        >
             <CloseIcon />
         </IconButton>
     );
