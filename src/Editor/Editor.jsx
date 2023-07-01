@@ -1,5 +1,5 @@
 import  { useState } from "react";
-import { Box, TextField, Card, CardContent } from "@mui/material";
+import { Box, TextField, Card, CardContent, Typography } from "@mui/material";
 import { styled } from "@mui/system";
 import ReactMarkdown from "react-markdown";
 import gfm from "remark-gfm";
@@ -14,37 +14,51 @@ const TransparentCard = styled(Card)(({ theme }) => ({
 
 function Editor() {
   const [markdownText, setMarkdownText] = useState('FULL TEXT');
+  const [title, setTitle] = useState('Writing:'); // Added state for the title
 
   const handleMarkdownChange = (event) => {
     setMarkdownText(event.target.value);
   }
 
+  const handleTitleChange = (event) => { // Added handler for the title
+    setTitle(event.target.value);
+  }
+
   return (
-      <>
-      <h2>Writing:</h2>
-      <CloseButton />
-      <MaximizeButton />
-      <MinimizeButton />
+    <>
+      <Box sx={{display: 'flex', alignItems: 'center', marginTop: '10vh'}}>
+        <Typography variant="h3" component="div"> {/* Increase the size of the title */}
+          <TextField
+            value={title}
+            onChange={handleTitleChange}
+            InputProps={{ style: { color: '#ffffff' } }}
+          />
+        </Typography>
+        <CloseButton />
+        <MaximizeButton />
+        <MinimizeButton />
+      </Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-around', height: '800px' }}> {/* Replace 800px with your desired fixed height */}
-      <Box sx={{ width: '50vw', height: '100%', overflow: 'auto' }}>
-        <TextField
-          multiline
-          rowsMax={Infinity}
-          variant="outlined"
-          value={markdownText}
-          onChange={handleMarkdownChange}
-          fullWidth
-          InputProps={{ style: { color: '#ffffff' } }} />
+        <Box sx={{ width: '50vw', height: '100%', overflow: 'auto' }}>
+          <TextField
+            multiline
+            rowsMax={Infinity}
+            variant="outlined"
+            value={markdownText}
+            onChange={handleMarkdownChange}
+            fullWidth
+            InputProps={{ style: { color: '#ffffff' } }}
+          />
+        </Box>
+        <Box sx={{ width: '10vw' }} /> {/* This is the empty element acting as a spacer */}
+        <Box sx={{ width: '50vw', height: '100%', overflow: 'auto' }}>
+          <TransparentCard>
+            <CardContent>
+              <ReactMarkdown remarkPlugins={[gfm]} children={markdownText} />
+            </CardContent>
+          </TransparentCard>
+        </Box>
       </Box>
-      <Box sx={{ width: '10vw' }} /> {/* This is the empty element acting as a spacer */}
-      <Box sx={{ width: '50vw', height: '100%', overflow: 'auto' }}>
-        <TransparentCard>
-          <CardContent>
-            <ReactMarkdown remarkPlugins={[gfm]} children={markdownText} />
-          </CardContent>
-        </TransparentCard>
-      </Box>
-    </Box>
     </>
   );
 }
