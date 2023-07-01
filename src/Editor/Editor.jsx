@@ -35,7 +35,7 @@ function Editor() {
         <MaximizeButton />
         <MinimizeButton />
       </Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-around', alignItems: 'flex-end', position: 'fixed', bottom: 0, width: '100%', height: '80vh' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-around', alignItems: 'flex-end', position: 'fixed', left:0, bottom: 0, width: '100%', height: '80vh' }}>
         <Box sx={{ width: '45vw', overflow: 'auto' }}>
           <TextField
             multiline
@@ -48,14 +48,14 @@ function Editor() {
           />
         </Box>
         <Box sx={{ width: '10vw' }} /> 
-        <Box sx={{ width: '45vw', overflow: 'auto' }}>
+      </Box>
+      <Box sx={{ width: '45vw', overflow: 'auto',right: 10, }}>
           <TransparentCard>
             <CardContent>
             <ReactMarkdown remarkPlugins={[gfm]}>{markdownText}</ReactMarkdown>
             </CardContent>
           </TransparentCard>
         </Box>
-      </Box>
     </>
   );
 }
