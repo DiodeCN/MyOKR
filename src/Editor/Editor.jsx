@@ -1,8 +1,14 @@
 import  { useState } from "react";
-import { Grid, TextField, Card, CardContent } from "@mui/material";
+import { Box, TextField, Card, CardContent } from "@mui/material";
+import { styled } from "@mui/system";
 import ReactMarkdown from "react-markdown";
 import gfm from "remark-gfm";
 import WindowLayout from './EditorLayout'; 
+
+const TransparentCard = styled(Card)(({ theme }) => ({
+  backgroundColor: "transparent",
+  color: "#ffffff"
+}));
 
 function Editor() {
   const [markdownText, setMarkdownText] = useState('FULL TEXT');
@@ -13,29 +19,30 @@ function Editor() {
 
   return (
     <WindowLayout>
-      <h1>MyOKR!-ElmCose</h1>
-      <div className="card">
-        <h2>Advantage is in me...</h2>
-      </div>
-      <Grid container spacing={2}>
-        <Grid item xs={6}>
+      <h2>Writing:</h2>
+
+
+      <Box sx={{ display: 'flex', justifyContent: 'space-around', height: '800px' }}> {/* Replace 800px with your desired fixed height */}
+        <Box sx={{ width: '50vw', height: '100%', overflow: 'auto' }}>
           <TextField
             multiline
-            rows={10}
+            rowsMax={Infinity}
             variant="outlined"
             value={markdownText}
             onChange={handleMarkdownChange}
             fullWidth
+            InputProps={{ style: { color: '#ffffff' } }}
           />
-        </Grid>
-        <Grid item xs={6}>
-          <Card>
+        </Box>
+        <Box sx={{ width: '10vw' }} /> {/* This is the empty element acting as a spacer */}
+        <Box sx={{ width: '50vw', height: '100%', overflow: 'auto' }}>
+          <TransparentCard>
             <CardContent>
               <ReactMarkdown remarkPlugins={[gfm]} children={markdownText} />
             </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+          </TransparentCard>
+        </Box>
+      </Box>
     </WindowLayout>
   );
 }
