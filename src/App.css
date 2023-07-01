@@ -5,6 +5,11 @@
   text-align: center;
 }
 
+body{
+  background-image: linear-gradient(120deg,  #F7A8B8 0%,#99CCFF 100%);
+  opacity:0.9;
+  }
+
 @font-face {
 	font-family: 'AllFont';
 	src: url('AlibabaPuHuiTi-2-85-Bold.woff2') format('woff2');
