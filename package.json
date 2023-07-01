@@ -19,6 +19,7 @@
     "@mui/material": "^5.13.6",
     "@mui/system": "^5.13.6",
     "babel": "^6.23.0",
+    "babel-cli": "^6.26.0",
     "browserslist": "^4.21.9",
     "concurrently": "^8.2.0",
     "electron": "^25.2.0",
@@ -33,8 +34,6 @@
     "vite": "^4.3.9"
   },
   "devDependencies": {
-    "@types/react": "^18.0.37",
-    "@types/react-dom": "^18.0.11",
     "@vitejs/plugin-react": "^4.0.0",
     "electron": "^25.2.0",
     "eslint": "^8.38.0",

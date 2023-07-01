@@ -5,7 +5,7 @@ import gfm from "remark-gfm";
 import WindowLayout from './EditorLayout'; 
 
 function Editor() {
-  const [markdownText, setMarkdownText] = useState('');
+  const [markdownText, setMarkdownText] = useState('FULL TEXT');
 
   const handleMarkdownChange = (event) => {
     setMarkdownText(event.target.value);
