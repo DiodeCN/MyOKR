@@ -1,47 +1,42 @@
 import  { useState } from "react";
-import { Box, TextField, Card, CardContent, Typography, Paper } from "@mui/material";
+import { Box, TextField, Card, CardContent, Typography } from "@mui/material";
 import { styled } from "@mui/system";
 import ReactMarkdown from "react-markdown";
 import gfm from "remark-gfm";
-import CloseButton from '../WinLayout/closeApp'; 
-import MaximizeButton from '../WinLayout/maximizeApp'; 
-import MinimizeButton from '../WinLayout/minimizeApp'; 
+import CloseButton from '../WinLayout/closeApp'; // Import the CloseButton component
+import MaximizeButton from '../WinLayout/maximizeApp'; // Import the MaximizeButton component
+import MinimizeButton from '../WinLayout/minimizeApp'; // Import the MinimizeButton component
 
 const TransparentCard = styled(Card)(({ theme }) => ({
   backgroundColor: "transparent",
   color: "#ffffff"
 }));
 
-const StyledBox = styled(Box)({
-  borderRadius: 8, 
-  boxShadow: '0px 3px 1px -2px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 1px 5px 0px rgba(0,0,0,0.12)', // 使用硬编码的阴影样式
-});
-
 function Editor() {
   const [markdownText, setMarkdownText] = useState('FULL TEXT');
-  const [title, setTitle] = useState('No Title!'); 
+  const [title, setTitle] = useState('No Title!'); // Added state for the title
 
   const handleMarkdownChange = (event) => {
     setMarkdownText(event.target.value);
   }
 
-  const handleTitleChange = (event) => { 
+  const handleTitleChange = (event) => { // Added handler for the title
     setTitle(event.target.value);
   }
 
   return (
     <>
       <Box sx={{display: 'flex', alignItems: 'center', marginTop: '10vh'}}>
-        <h2 style={{ position: 'absolute', left: 10, top: -5, borderRadius: 8, backgroundColor: 'transparent', boxShadow: 'none' }}>Title:</h2>
-        <Typography variant="h3" component="div" style={{ position: 'absolute', left: 80, top: 5, borderRadius: 8, backgroundColor: 'transparent', boxShadow: 'none' }}> 
+        <h2 style={{position: 'absolute', left: 10, top: -5, borderRadius: 8, backgroundColor: 'transparent', boxShadow: 'none'}}>Title:</h2>
+        <Typography variant="h3" component="div" style={{position: 'absolute', left: 80, top: 5, borderRadius: 8, backgroundColor: 'transparent', boxShadow: 'none'}}>
           <TextField value={title} onChange={handleTitleChange} InputProps={{ style: { color: '#ffffff' } }} />
         </Typography>
         <CloseButton />
         <MaximizeButton />
         <MinimizeButton />
       </Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-around', position: 'fixed', bottom: 0, width: '100%' }}>
-        <StyledBox sx={{ width: '45vw', overflow: 'auto' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-around', flexDirection: 'column', minHeight: '80vh'}}>
+        <Box sx={{ width: '50vw', overflow: 'auto', marginTop: 'auto' }}>
           <TextField
             multiline
             rowsMax={Infinity}
@@ -51,15 +46,15 @@ function Editor() {
             fullWidth
             InputProps={{ style: { color: '#ffffff' } }}
           />
-        </StyledBox>
-        <Box sx={{ width: '10vw' }} /> 
-        <StyledBox sx={{ width: '45vw', overflow: 'auto' }}>
+        </Box>
+        <Box sx={{ width: '10vw' }} />
+        <Box sx={{ width: '50vw', overflow: 'auto' }}>
           <TransparentCard>
             <CardContent>
               <ReactMarkdown remarkPlugins={[gfm]} children={markdownText} />
             </CardContent>
           </TransparentCard>
-        </StyledBox>
+        </Box>
       </Box>
     </>
   );
