@@ -129,35 +129,31 @@ const Editor = () => {
         </AppBar>
 
 
+
+
         <Grid container spacing={2}>
+  <Grid item xs={12} md={6}>
+    <TextField
+      multiline
+      rows={10}
+      variant="outlined"
+      value={markdownText}
+      onChange={handleTextChange}
+      fullWidth
+      sx={{ borderRadius: "12px", boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)" }}
+      inputRef={textAreaRef}
+    />
+  </Grid>
+  <Grid item xs={12} md={6} sx={{ display: "flex", justifyContent: "center" }}>
+    <CardContent sx={{ alignItems: "flex-start", overflow: "auto", maxHeight: "80vh", borderRadius: "12px", boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)" }}>
+      <Box sx={{ textAlign: "left" }}>
+        <ReactMarkdown remarkPlugins={[gfm]}>{markdownText}</ReactMarkdown>
+      </Box>
+    </CardContent>
+  </Grid>
+</Grid>
 
 
-          <Grid item xs={12} md={6}>
-            <TextField
-              multiline
-              rows={10}
-              variant="outlined"
-              value={markdownText}
-              onChange={handleTextChange}
-              fullWidth
-              sx={{ borderRadius: "12px" }}
-              inputRef={textAreaRef}
-            />
-
-            
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <CardContent sx={{ alignItems: 'flex-start', overflow: 'auto', maxHeight: '80vh' }}>
-              <Box sx={{ textAlign: "left" }}>
-                <ReactMarkdown 
-                  remarkPlugins={[gfm]}
-                >
-                  {markdownText}
-                </ReactMarkdown>
-              </Box>
-            </CardContent>
-          </Grid>
-        </Grid>
 
 
 
