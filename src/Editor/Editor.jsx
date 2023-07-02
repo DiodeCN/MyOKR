@@ -6,7 +6,6 @@ import {
   AppBar,
   Box,
   Button,
-  Card,
   CardContent,
   FormControl,
   MenuItem,
@@ -57,13 +56,26 @@ const Editor = () => {
     setMarkdownText(event.target.value);
   };
 
-  const handleInsertClick = (insertion) => {
+  const handleInsertClick = (insertion, id) => {
     const textArea = textAreaRef.current;
     if (textArea) {
-      insertTextAtEnd(textArea, insertion);
+      insertTextAtEnd(textArea, `${insertion}{#${id}}\n\n`);
       setMarkdownText(textArea.value);
     }
   };
+  
+  const parseHeadings = (text) => {
+    const regex = /^#+\s+(.*?)\s*{#(.*?)}/gm;
+    const headings = [];
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+      const [, heading, id] = match;
+      headings.push({ heading, id });
+    }
+    return headings;
+  };
+  
+
 
   const handleOpen = () => {
     setOpen(true);
@@ -148,11 +160,22 @@ const Editor = () => {
     />
   </Grid>
   <Grid item xs={12} md={6} sx={{ display: "flex", justifyContent: "center" }}>
-    <CardContent sx={{ alignItems: "flex-start", overflow: "auto", minWidth:'40vh',maxHeight: "80vh", borderRadius: "12px", boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)" }}>
-      <Box sx={{ textAlign: "left" }}>
-        <ReactMarkdown remarkPlugins={[gfm]}>{markdownText}</ReactMarkdown>
-      </Box>
-    </CardContent>
+  <CardContent sx={{ alignItems: "flex-start", overflow: "auto", minWidth: '40vh', maxHeight: "80vh", borderRadius: "12px", boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)", scrollBehavior: "smooth" }}>
+  <Box sx={{ textAlign: "left" }}>
+    <ReactMarkdown remarkPlugins={[gfm]}>{markdownText}</ReactMarkdown>
+    {parseHeadings(markdownText).map(({ heading, id }) => (
+      <Typography
+        key={id}
+        variant="h6"
+        id={id}
+        sx={{ marginTop: "1rem", "&:target": { backgroundColor: "lightgray" } }}
+      >
+        {heading}
+      </Typography>
+    ))}
+  </Box>
+</CardContent>
+
   </Grid>
 </Grid>
 
