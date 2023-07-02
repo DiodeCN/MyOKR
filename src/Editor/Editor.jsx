@@ -92,13 +92,15 @@ const Editor = () => {
           flexDirection: "column",
           gap: "1rem",
           width: "100%",
-          maxWidth: "800px",
           margin: "0 auto"
         }}
       >
-        <AppBar position="static" color="transparent" elevation={0}>
+        <Grid item xs={12} sx={{ flexGrow: 1 }}>
+
+        <AppBar position="static" color="transparent" elevation={0} style={{ borderRadius: 8, backgroundColor: 'transparent', boxShadow: 'none' }}>
+
           <Toolbar>
-            <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            <Typography variant="h5" sx={{ flexGrow: 1 }}>
               文本编辑
             </Typography>
             <Button onClick={() => handleInsertClick("# 芝士H1 标题\n\n")}>
@@ -127,6 +129,7 @@ const Editor = () => {
             </Button>
           </Toolbar>
         </AppBar>
+        </Grid>
 
 
 
@@ -135,17 +138,17 @@ const Editor = () => {
   <Grid item xs={12} md={6}>
     <TextField
       multiline
-      rows={10}
+      rows={30}
       variant="outlined"
       value={markdownText}
       onChange={handleTextChange}
       fullWidth
-      sx={{ borderRadius: "12px", boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)" }}
+      sx={{ borderRadius: "12px",minWidth:'40vh', boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)" }}
       inputRef={textAreaRef}
     />
   </Grid>
   <Grid item xs={12} md={6} sx={{ display: "flex", justifyContent: "center" }}>
-    <CardContent sx={{ alignItems: "flex-start", overflow: "auto", maxHeight: "80vh", borderRadius: "12px", boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)" }}>
+    <CardContent sx={{ alignItems: "flex-start", overflow: "auto", minWidth:'40vh',maxHeight: "80vh", borderRadius: "12px", boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)" }}>
       <Box sx={{ textAlign: "left" }}>
         <ReactMarkdown remarkPlugins={[gfm]}>{markdownText}</ReactMarkdown>
       </Box>
