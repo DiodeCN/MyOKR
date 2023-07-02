@@ -26,22 +26,10 @@ function Editor() {
 
   return (
     <>
-          <Box 
-  sx={{ 
-    display: 'flex', 
-    justifyContent: 'space-around', 
-    alignItems: 'flex-end', 
-    position: 'fixed', 
-    left: 0, 
-    bottom: 0, 
-    width: '100%', 
-    height: '80vh' 
-  }}
->
-  <Box sx={{ width: '50vw' }} />
+
   <Box sx={{ width: '45vw', overflow: 'auto', right: 0 }}>
     <TransparentCard>
-    <CardContent sx={{ alignItems: 'flex-start' }}>
+    <CardContent sx={{ alignItems: 'flex-start', overflow: 'auto', maxHeight: '80vh' }}>
   <Box sx={{ textAlign: "left" }}>
     <ReactMarkdown 
       remarkPlugins={[gfm]}
@@ -51,8 +39,8 @@ function Editor() {
   </Box>
 </CardContent>
 
+
     </TransparentCard>
-  </Box>
 </Box>
       <Box sx={{display: 'flex', alignItems: 'center', marginTop: '10vh'}}>
         <h2 style={{ position: 'absolute', left: 10, top: -5, borderRadius: 8, backgroundColor: 'transparent', boxShadow: 'none' }}>Title:</h2>
