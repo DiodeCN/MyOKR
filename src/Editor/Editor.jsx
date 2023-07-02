@@ -26,6 +26,27 @@ function Editor() {
 
   return (
     <>
+          <Box 
+  sx={{ 
+    display: 'flex', 
+    justifyContent: 'space-around', 
+    alignItems: 'flex-end', 
+    position: 'fixed', 
+    left: 0, 
+    bottom: 0, 
+    width: '100%', 
+    height: '80vh' 
+  }}
+>
+  <Box sx={{ width: '50vw' }} />
+  <Box sx={{ width: '45vw', overflow: 'auto', right: 0 }}>
+    <TransparentCard>
+      <CardContent>
+        <ReactMarkdown remarkPlugins={[gfm]}>{markdownText}</ReactMarkdown>
+      </CardContent>
+    </TransparentCard>
+  </Box>
+</Box>
       <Box sx={{display: 'flex', alignItems: 'center', marginTop: '10vh'}}>
         <h2 style={{ position: 'absolute', left: 10, top: -5, borderRadius: 8, backgroundColor: 'transparent', boxShadow: 'none' }}>Title:</h2>
         <Typography variant="h3" component="div" style={{ position: 'absolute', left: 80, top: 5, borderRadius: 8, backgroundColor: 'transparent', boxShadow: 'none' }}> 
@@ -35,8 +56,8 @@ function Editor() {
         <MaximizeButton />
         <MinimizeButton />
       </Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-around', alignItems: 'flex-end', position: 'fixed', left:0, bottom: 0, width: '100%', height: '80vh' }}>
-        <Box sx={{ width: '45vw', overflow: 'auto' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-around', alignItems: 'flex-end', position: 'fixed', left:0, bottom: 5, width: '100%', height: '80vh' }}>
+        <Box sx={{ width: '48vw', overflow: 'auto' }}>
           <TextField
             multiline
             rowsMax={Infinity}
@@ -47,15 +68,11 @@ function Editor() {
             InputProps={{ style: { color: '#ffffff' } }}
           />
         </Box>
-        <Box sx={{ width: '10vw' }} /> 
+        <Box sx={{ width: '50vw' }} /> 
       </Box>
-      <Box sx={{ width: '45vw', overflow: 'auto',right: 10, }}>
-          <TransparentCard>
-            <CardContent>
-            <ReactMarkdown remarkPlugins={[gfm]}>{markdownText}</ReactMarkdown>
-            </CardContent>
-          </TransparentCard>
-        </Box>
+
+
+
     </>
   );
 }
