@@ -97,7 +97,7 @@ const Editor = () => {
       >
         <Grid item xs={12} sx={{ flexGrow: 1 }}>
 
-        <AppBar position="static" color="transparent" elevation={0} style={{ borderRadius: 8, backgroundColor: 'transparent', boxShadow: 'none' }}>
+        <AppBar position="sticky" color="transparent" elevation={0} style={{ borderRadius: 8, backgroundColor: 'transparent', boxShadow: 'none'}}>
 
           <Toolbar>
             <Typography variant="h5" sx={{ flexGrow: 1 }}>
@@ -182,7 +182,7 @@ const Editor = () => {
           onClick={handleOpen}
           sx={{ marginTop: "1rem" }}
         >
-          分类细则
+          关于
         </Button>
 
         <Button
@@ -197,7 +197,7 @@ const Editor = () => {
       </Box>
       <Dialog onClose={handleClose} open={open} maxWidth="md" fullWidth>
         <DialogTitle>
-          分类细则
+          关于
           <IconButton
             edge="end"
             color="inherit"
