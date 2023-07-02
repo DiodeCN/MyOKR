@@ -41,9 +41,16 @@ function Editor() {
   <Box sx={{ width: '50vw' }} />
   <Box sx={{ width: '45vw', overflow: 'auto', right: 0 }}>
     <TransparentCard>
-      <CardContent>
-        <ReactMarkdown remarkPlugins={[gfm]}>{markdownText}</ReactMarkdown>
-      </CardContent>
+    <CardContent sx={{ alignItems: 'flex-start' }}>
+  <Box sx={{ textAlign: "left" }}>
+    <ReactMarkdown 
+      remarkPlugins={[gfm]}
+    >
+      {markdownText}
+    </ReactMarkdown>
+  </Box>
+</CardContent>
+
     </TransparentCard>
   </Box>
 </Box>
