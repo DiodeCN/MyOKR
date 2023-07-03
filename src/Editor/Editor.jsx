@@ -35,17 +35,9 @@ const Editor = () => {
   const [articleType, setArticleType] = useState("");
   const [open, setOpen] = useState(false);
   const mdDocument = `
-# 分类细则示例
+# 榆法糖-MyOKR！
 
-这是一个示例文档，你可以根据需要替换它的内容。
-
-## 标题 1
-
-内容 1
-
-## 标题 2
-
-内容 2
+## 想做给博客的Markdown编辑器来着，结果不小心做成OKR乐！
 `;
 
 const [markdownText, setMarkdownText] = useState("");
@@ -59,18 +51,21 @@ useEffect(() => {
 
   const textAreaRef = React.createRef();
 
-  const handleTextChange = (event) => {
-    setMarkdownText(event.target.value);
-  };
 
   const handleInsertClick = (insertion, id) => {
     const textArea = textAreaRef.current;
     if (textArea) {
+      const { selectionStart, selectionEnd } = textArea;
+      
       insertTextAtEnd(textArea, `${insertion}{#${id}}\n\n`);
       setMarkdownText(textArea.value);
+  
+      // Restore cursor position.
+      textArea.selectionStart = selectionStart;
+      textArea.selectionEnd = selectionEnd;
     }
   };
-
+  
   const [markdownHeight, setMarkdownHeight] = useState("80vh");
   const markdownRef = useRef(null);
 
@@ -158,32 +153,49 @@ useEffect(() => {
           </AppBar>
         </Grid>
 
-        <Grid container spacing={2}>
-      <Grid item xs={6}>
+        <Grid container spacing={2} >
+    <Grid item xs={6} style={{maxHeight: '60vh', display: 'flex'}}>
         <TextField
-          fullWidth
-          multiline
-          variant="outlined"
-          value={markdownText}
-          onChange={(event) => setMarkdownText(event.target.value)}
-          style={{
-            height: '80vh',
-            overflow: 'auto',
-            resize: 'none'
-          }}
+            fullWidth
+            multiline
+            variant="outlined"
+            value={markdownText}
+            onChange={(event) => setMarkdownText(event.target.value)}
+            style={{
+                maxHeight: '60vh',
+                minHeight: '60vh',
+                overflow: 'auto',
+                height: "100%",
+                backgroundColor: 'rgba(255,255,255,0.3)', // Add this
+                borderRadius: '10px', // Add this
+                boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)', // Add this
+                backdropFilter: 'blur(4px)', // Add this
+                border: '1px solid rgba(255,255,255,0.18)', // Add this
+                flexGrow: 1, // Add this
+                display: 'flex', // Add this
+                flexDirection: 'column' // Add this
+            }}
         />
-      </Grid>
+    </Grid>
+
       <Grid item xs={6}>
         <div
           className="view"
           ref={previewRef}
           style={{
-            height: "80vh",
+            minHeight: '32px',
+            maxHeight: "60vh",
             width: "100%",
             overflowX: "hidden",
             overflowY: "auto",
-            border: "1px solid #ddd",
-            padding: "10px",
+            backgroundColor: 'rgba(255,255,255,0.3)', // Add this
+            borderRadius: '10px', // Add this
+            boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)', // Add this
+            backdropFilter: 'blur(4px)', // Add this
+            border: '1px solid rgba(255,255,255,0.18)', // Add this
+            flexGrow: 1, // Add this
+            display: 'flex', // Add this
+            flexDirection: 'column', // Add this
             textAlign: "left"  // Make content align left
 
           }}
