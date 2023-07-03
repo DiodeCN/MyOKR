@@ -72,6 +72,7 @@ useEffect(() => {
   };
 
 
+  
   const handleOpen = () => {
     setOpen(true);
   };
@@ -164,6 +165,7 @@ useEffect(() => {
       </Grid>
       <Grid item xs={6}>
         <div
+          className="view"
           ref={previewRef}
           style={{
             height: "80vh",
