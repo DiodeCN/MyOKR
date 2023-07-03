@@ -1,7 +1,7 @@
-import CloseButton from '../WinLayout/closeApp'; 
-import MaximizeButton from '../WinLayout/maximizeApp'; 
-import MinimizeButton from '../WinLayout/minimizeApp'; 
-import React, { useState } from "react";
+import CloseButton from "../WinLayout/closeApp";
+import MaximizeButton from "../WinLayout/maximizeApp";
+import MinimizeButton from "../WinLayout/minimizeApp";
+import React, { useState, useRef, useEffect } from "react";
 import {
   AppBar,
   Box,
@@ -23,7 +23,6 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import Grid from "@mui/material/Grid";
 
-
 import ReactMarkdown from "react-markdown";
 import gfm from "remark-gfm";
 
@@ -34,7 +33,7 @@ const insertTextAtEnd = (textArea, newText) => {
 
 const Editor = () => {
   const [markdownText, setMarkdownText] = useState("");
-  const [articleType, setArticleType] = useState("分享");
+  const [articleType, setArticleType] = useState("");
   const [open, setOpen] = useState(false);
   const mdDocument = `
 # 分类细则示例
@@ -50,6 +49,23 @@ const Editor = () => {
 内容 2
 `;
 
+  const previewRef = useRef(null);
+
+
+  useEffect(() => {
+    const previewElement = previewRef.current;
+    if (previewElement) {
+      previewElement.scrollTop = previewElement.scrollHeight;
+      console.log(previewElement.scrollTop);
+      console.log(previewElement.scrollHeight);
+      console.log(previewRef.current);
+      console.log(previewElement);
+
+    }
+  }, [markdownText]);
+  
+  
+
   const textAreaRef = React.createRef();
 
   const handleTextChange = (event) => {
@@ -57,24 +73,13 @@ const Editor = () => {
   };
 
   const handleInsertClick = (insertion, id) => {
+
     const textArea = textAreaRef.current;
     if (textArea) {
       insertTextAtEnd(textArea, `${insertion}{#${id}}\n\n`);
       setMarkdownText(textArea.value);
     }
   };
-  
-  const parseHeadings = (text) => {
-    const regex = /^#+\s+(.*?)\s*{#(.*?)}/gm;
-    const headings = [];
-    let match;
-    while ((match = regex.exec(text)) !== null) {
-      const [, heading, id] = match;
-      headings.push({ heading, id });
-    }
-    return headings;
-  };
-  
 
 
   const handleOpen = () => {
@@ -95,9 +100,9 @@ const Editor = () => {
 
   return (
     <>
-            <CloseButton />
-        <MaximizeButton />
-        <MinimizeButton />
+      <CloseButton />
+      <MaximizeButton />
+      <MinimizeButton />
       <Box
         sx={{
           display: "flex",
@@ -108,93 +113,111 @@ const Editor = () => {
         }}
       >
         <Grid item xs={12} sx={{ flexGrow: 1 }}>
-
-        <AppBar position="sticky" color="transparent" elevation={0} style={{ borderRadius: 8, backgroundColor: 'transparent', boxShadow: 'none'}}>
-
-          <Toolbar>
-            <Typography variant="h5" sx={{ flexGrow: 1 }}>
-              文本编辑
-            </Typography>
-            <Button onClick={() => handleInsertClick("# 芝士H1 标题\n\n")}>
-              H1
-            </Button>
-            <Button onClick={() => handleInsertClick("## 芝士H2 标题\n\n")}>
-              H2
-            </Button>
-            <Button onClick={() => handleInsertClick("### 芝士H3 标题\n\n")}>
-              H3
-            </Button>
-            <Button onClick={() => handleInsertClick("**芝士粗体**")}>
-              粗体
-            </Button>
-            <Button onClick={() => handleInsertClick("_芝士斜体_")}>
-              斜体
-            </Button>
-            <Button onClick={() => handleInsertClick("~~芝士删除线~~")}>
-              删除线
-            </Button>
-            <Button onClick={() => handleInsertClick("\n\n- 芝士列表项")}>
-              列表项
-            </Button>
-            <Button onClick={() => handleInsertClick("\n\n1. 芝士有序列表项")}>
-              有序列表项
-            </Button>
-          </Toolbar>
-        </AppBar>
+          <AppBar
+            position="sticky"
+            color="transparent"
+            elevation={0}
+            style={{
+              borderRadius: 8,
+              backgroundColor: "transparent",
+              boxShadow: "none"
+            }}
+          >
+            <Toolbar>
+              <Typography variant="h5" sx={{ flexGrow: 1 }}>
+                文本编辑
+              </Typography>
+              <Button onClick={() => handleInsertClick("# 芝士H1 标题\n\n")}>
+                H1
+              </Button>
+              <Button onClick={() => handleInsertClick("## 芝士H2 标题\n\n")}>
+                H2
+              </Button>
+              <Button onClick={() => handleInsertClick("### 芝士H3 标题\n\n")}>
+                H3
+              </Button>
+              <Button onClick={() => handleInsertClick("**芝士粗体**")}>
+                粗体
+              </Button>
+              <Button onClick={() => handleInsertClick("_芝士斜体_")}>
+                斜体
+              </Button>
+              <Button onClick={() => handleInsertClick("~~芝士删除线~~")}>
+                删除线
+              </Button>
+              <Button onClick={() => handleInsertClick("\n\n- 芝士列表项")}>
+                列表项
+              </Button>
+              <Button
+                onClick={() => handleInsertClick("\n\n1. 芝士有序列表项")}
+              >
+                有序列表项
+              </Button>
+            </Toolbar>
+          </AppBar>
         </Grid>
 
-
-
-
         <Grid container spacing={2}>
-  <Grid item xs={12} md={6}>
-    <TextField
-      multiline
-      rows={30}
-      variant="outlined"
-      value={markdownText}
-      onChange={handleTextChange}
-      fullWidth
-      sx={{ borderRadius: "12px",minWidth:'40vh', boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)" }}
-      inputRef={textAreaRef}
-    />
-  </Grid>
-  <Grid item xs={12} md={6} sx={{ display: "flex", justifyContent: "center" }}>
-  <CardContent sx={{ alignItems: "flex-start", overflow: "auto", minWidth: '40vh', maxHeight: "80vh", borderRadius: "12px", boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)", scrollBehavior: "smooth" }}>
-  <Box sx={{ textAlign: "left" }}>
-    <ReactMarkdown remarkPlugins={[gfm]}>{markdownText}</ReactMarkdown>
-    {parseHeadings(markdownText).map(({ heading, id }) => (
-      <Typography
-        key={id}
-        variant="h6"
-        id={id}
-        sx={{ marginTop: "1rem", "&:target": { backgroundColor: "lightgray" } }}
-      >
-        {heading}
-      </Typography>
-    ))}
-  </Box>
-</CardContent>
-
-  </Grid>
+          <Grid item xs={12} md={6}>
+            <TextField
+              multiline
+              rows={30}
+              variant="outlined"
+              value={markdownText}
+              onChange={handleTextChange}
+              fullWidth
+              sx={{
+                borderRadius: "12px",
+                minWidth: "40vh",
+                boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)"
+              }}
+              inputRef={textAreaRef}
+              overflow
+            />
+          </Grid>
+          <Grid
+  item
+  xs={12}
+  md={6}
+  sx={{ display: "flex", justifyContent: "center", overflow: "auto" }}
+>
+  <CardContent
+    style={{
+      maxHeight: "680px",
+      textAlign: "left",
+      scrollBehavior: "smooth"
+    }}
+    sx={{
+      alignItems: "flex-start",
+      minWidth: "40vh",
+      maxHeight: "80vh",
+      borderRadius: "12px",
+      boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+      scrollBehavior: "smooth"
+    }}
+  >
+    <Box sx={{ textAlign: "left", height: '100%', overflow: "auto" }}>
+      <div ref={previewRef}>
+        <ReactMarkdown remarkPlugins={[gfm]}>
+          {markdownText}
+        </ReactMarkdown>
+      </div>
+    </Box>
+  </CardContent>
 </Grid>
 
 
-
-
+        </Grid>
 
         <FormControl fullWidth sx={{ marginTop: "1rem" }}>
-          <InputLabel id="article-type-label">文章类型</InputLabel>
+          <InputLabel id="article-type-label">上传服务器</InputLabel>
           <Select
             labelId="article-type-label"
             id="article-type-select"
             value={articleType}
             onChange={handleArticleTypeChange}
           >
-            <MenuItem value="分享">分享</MenuItem>
-            <MenuItem value="请求">请求</MenuItem>
-            <MenuItem value="闲聊">闲聊</MenuItem>
-            <MenuItem value="日志">日志</MenuItem>
+            <MenuItem value="新增">新增</MenuItem>
           </Select>
         </FormControl>
 
