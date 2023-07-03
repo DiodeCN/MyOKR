@@ -57,9 +57,6 @@ useEffect(() => {
   }
 }, [markdownText]);
 
-  
-  
-
   const textAreaRef = React.createRef();
 
   const handleTextChange = (event) => {
@@ -67,7 +64,6 @@ useEffect(() => {
   };
 
   const handleInsertClick = (insertion, id) => {
-
     const textArea = textAreaRef.current;
     if (textArea) {
       insertTextAtEnd(textArea, `${insertion}{#${id}}\n\n`);
@@ -151,7 +147,6 @@ useEffect(() => {
           </AppBar>
         </Grid>
 
-<Box sx={{}}>
         <Grid container spacing={2}>
       <Grid item xs={6}>
         <TextField
@@ -160,25 +155,29 @@ useEffect(() => {
           variant="outlined"
           value={markdownText}
           onChange={(event) => setMarkdownText(event.target.value)}
+          style={{
+            height: '80vh',
+            overflow: 'auto',
+            resize: 'none'
+          }}
         />
       </Grid>
       <Grid item xs={6}>
         <div
           ref={previewRef}
           style={{
-            height: "100%",
+            height: "80vh",
             width: "100%",
-            overflow: "auto",
+            overflowX: "hidden",
+            overflowY: "auto",
             border: "1px solid #ddd",
             padding: "10px",
-            maxHeight:"80vh"
           }}
         >
           <ReactMarkdown remarkPlugins={[gfm]} children={markdownText} />
         </div>
       </Grid>
     </Grid>
-    </Box>
 
         <FormControl fullWidth sx={{ marginTop: "1rem" }}>
           <InputLabel id="article-type-label">上传服务器</InputLabel>
@@ -216,6 +215,7 @@ useEffect(() => {
         <DialogTitle>
           关于
           <IconButton
+            id="view"
             edge="end"
             color="inherit"
             onClick={handleClose}
@@ -228,7 +228,7 @@ useEffect(() => {
             }}
           >
             <CloseIcon />
-          </IconButton>
+          </IconButton> 
         </DialogTitle>
         <DialogContent dividers sx={{ overflowX: "hidden", maxWidth: "100%" }}>
           <ReactMarkdown remarkPlugins={[gfm]} children={mdDocument} />
