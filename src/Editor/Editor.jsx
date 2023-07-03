@@ -32,7 +32,6 @@ const insertTextAtEnd = (textArea, newText) => {
 };
 
 const Editor = () => {
-  const [markdownText, setMarkdownText] = useState("");
   const [articleType, setArticleType] = useState("");
   const [open, setOpen] = useState(false);
   const mdDocument = `
@@ -49,20 +48,15 @@ const Editor = () => {
 内容 2
 `;
 
-  const previewRef = useRef(null);
+const [markdownText, setMarkdownText] = useState("");
+const previewRef = useRef(null);
 
+useEffect(() => {
+  if (previewRef.current) {
+    previewRef.current.scrollTop = previewRef.current.scrollHeight;
+  }
+}, [markdownText]);
 
-  useEffect(() => {
-    const previewElement = previewRef.current;
-    if (previewElement) {
-      previewElement.scrollTop = previewElement.scrollHeight;
-      console.log(previewElement.scrollTop);
-      console.log(previewElement.scrollHeight);
-      console.log(previewRef.current);
-      console.log(previewElement);
-
-    }
-  }, [markdownText]);
   
   
 
@@ -157,57 +151,34 @@ const Editor = () => {
           </AppBar>
         </Grid>
 
+<Box sx={{}}>
         <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
-            <TextField
-              multiline
-              rows={30}
-              variant="outlined"
-              value={markdownText}
-              onChange={handleTextChange}
-              fullWidth
-              sx={{
-                borderRadius: "12px",
-                minWidth: "40vh",
-                boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)"
-              }}
-              inputRef={textAreaRef}
-              overflow
-            />
-          </Grid>
-          <Grid
-  item
-  xs={12}
-  md={6}
-  sx={{ display: "flex", justifyContent: "center", overflow: "auto" }}
->
-  <CardContent
-    style={{
-      maxHeight: "680px",
-      textAlign: "left",
-      scrollBehavior: "smooth"
-    }}
-    sx={{
-      alignItems: "flex-start",
-      minWidth: "40vh",
-      maxHeight: "80vh",
-      borderRadius: "12px",
-      boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
-      scrollBehavior: "smooth"
-    }}
-  >
-    <Box sx={{ textAlign: "left", height: '100%', overflow: "auto" }}>
-      <div ref={previewRef}>
-        <ReactMarkdown remarkPlugins={[gfm]}>
-          {markdownText}
-        </ReactMarkdown>
-      </div>
+      <Grid item xs={6}>
+        <TextField
+          fullWidth
+          multiline
+          variant="outlined"
+          value={markdownText}
+          onChange={(event) => setMarkdownText(event.target.value)}
+        />
+      </Grid>
+      <Grid item xs={6}>
+        <div
+          ref={previewRef}
+          style={{
+            height: "100%",
+            width: "100%",
+            overflow: "auto",
+            border: "1px solid #ddd",
+            padding: "10px",
+            maxHeight:"80vh"
+          }}
+        >
+          <ReactMarkdown remarkPlugins={[gfm]} children={markdownText} />
+        </div>
+      </Grid>
+    </Grid>
     </Box>
-  </CardContent>
-</Grid>
-
-
-        </Grid>
 
         <FormControl fullWidth sx={{ marginTop: "1rem" }}>
           <InputLabel id="article-type-label">上传服务器</InputLabel>
