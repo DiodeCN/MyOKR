@@ -71,6 +71,16 @@ useEffect(() => {
     }
   };
 
+  const [markdownHeight, setMarkdownHeight] = useState("80vh");
+  const markdownRef = useRef(null);
+
+  useEffect(() => {
+    if (markdownRef.current) {
+      setMarkdownHeight(`${markdownRef.current.getBoundingClientRect().height}px`);
+    }
+  }, [markdownText]);
+
+
 
   
   const handleOpen = () => {
@@ -174,6 +184,8 @@ useEffect(() => {
             overflowY: "auto",
             border: "1px solid #ddd",
             padding: "10px",
+            textAlign: "left"  // Make content align left
+
           }}
         >
           <ReactMarkdown remarkPlugins={[gfm]} children={markdownText} />
