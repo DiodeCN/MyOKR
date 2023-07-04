@@ -154,38 +154,42 @@ useEffect(() => {
         </Grid>
 
         <Grid container spacing={2} >
-    <Grid item xs={6} style={{maxHeight: '60vh', display: 'flex'}}>
-        <TextField
-            fullWidth
-            multiline
-            variant="outlined"
-            value={markdownText}
-            onChange={(event) => setMarkdownText(event.target.value)}
-            style={{
-                maxHeight: '60vh',
-                minHeight: '60vh',
-                overflow: 'auto',
-                height: "100%",
-                backgroundColor: 'rgba(255,255,255,0.3)', // Add this
-                borderRadius: '10px', // Add this
-                boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)', // Add this
-                backdropFilter: 'blur(4px)', // Add this
-                border: '1px solid rgba(255,255,255,0.18)', // Add this
-                flexGrow: 1, // Add this
-                display: 'flex', // Add this
-                flexDirection: 'column' // Add this
-            }}
-        />
-    </Grid>
+        <Grid item xs={6} style={{maxHeight: '60vh', display: 'flex'}}>
+    <TextField
+        fullWidth
+        multiline
+        variant="outlined"
+        value={markdownText}
+        onChange={(event) => setMarkdownText(event.target.value)}
+        style={{
+            maxHeight: '60vh',
+            minHeight: '60vh',
+            minWidth: '35vh',
+            maxWidth: '45vh',
+            overflow: 'auto',
+            backgroundColor: 'rgba(255,255,255,0.3)', 
+            borderRadius: '10px', 
+            boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+            backdropFilter: 'blur(4px)', 
+            border: '1px solid rgba(255,255,255,0.18)', 
+            flexGrow: 10,
+            display: 'flex',
+            flexDirection: 'column'
+        }}
+    />
+</Grid>
+
 
       <Grid item xs={6}>
         <div
           className="view"
           ref={previewRef}
           style={{
-            minHeight: '32px',
+            minHeight: '60vh',
             maxHeight: "60vh",
             width: "100%",
+            minWidth: '35vh',
+            maxWidth: '45vh',
             overflowX: "hidden",
             overflowY: "auto",
             backgroundColor: 'rgba(255,255,255,0.3)', // Add this
