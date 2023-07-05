@@ -66,6 +66,16 @@ body{
 
 }
 
-button {
-  opacity:0.6;
+.transparentButton {
+  background-color: transparent;
+  border: none;
+  color: black;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  transition: 0.3s;
+}
+
+.transparentButton:hover {
+  background-color: rgba(0, 0, 0, 0.1);
 }
