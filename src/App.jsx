@@ -21,7 +21,6 @@ function App() {
       </div>
       <h1>MyOKR!-ElmCose</h1>
       <div className="card">
-        <h2>Advantage is in me...</h2>
         <button className="transparentButton">
           <a href="/editor">New Document</a>
         </button>
