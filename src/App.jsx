@@ -22,6 +22,7 @@ function App() {
       <h1>MyOKR!-ElmCose</h1>
       <div className="card">
       <h2>Advantage is in me...</h2>
+      <button>New Document</button>
       </div>
     </>
   )

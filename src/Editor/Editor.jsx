@@ -66,7 +66,6 @@ useEffect(() => {
     }
   };
   
-  const [markdownHeight, setMarkdownHeight] = useState("80vh");
   const markdownRef = useRef(null);
 
   useEffect(() => {
