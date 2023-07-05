@@ -63,4 +63,9 @@ body{
 
 .button-icon {
   color: #ffffff!important;
+
+}
+
+button {
+  opacity:0.6;
 }
