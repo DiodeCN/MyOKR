@@ -18,13 +18,12 @@ function App() {
         <a href="https://react.dev">
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
-      </div>
-      <h1>MyOKR!-ElmCose</h1>
-      <div className="card">
+        <br />
         <button className="transparentButton">
           <a href="/editor">New Document</a>
         </button>
       </div>
+      <h1>MyOKR!-ElmCose</h1>
     </>
   );
 }

@@ -6,7 +6,7 @@ function createWindow () {
   const { width, height } = require('electron').screen.getPrimaryDisplay().workAreaSize
   win = new BrowserWindow({
     width: Math.max(Math.round(width * 0.6), 800),
-    height: Math.max(Math.round(height * 0.6), 600),
+    height: Math.max(Math.round(height * 0.8), 600),
     frame: false,
     titleBarStyle: 'hidden',
     resizable: true,
