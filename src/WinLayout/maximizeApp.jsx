@@ -20,7 +20,8 @@ const MaximizeButton = () => {
                 top: 5,
                 borderRadius: 8, // 设置圆角半径
                 backgroundColor: 'transparent',
-                boxShadow: 'none'
+                boxShadow: 'none',
+                outline: 'none', // 这行代码移除了焦点轮廓
             }}
         >
             <FullscreenIcon />
