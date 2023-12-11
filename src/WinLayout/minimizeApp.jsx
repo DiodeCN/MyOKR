@@ -24,7 +24,7 @@ const MinimizeButton = () => {
                 outline: 'none', // 这行代码移除了焦点轮廓
             }}
         >
-            <MinimizeIcon />
+            <MinimizeIcon style={{ transform: 'translateY(-8px)' }} />
         </IconButton>
     );
 }
