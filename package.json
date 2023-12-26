@@ -22,7 +22,6 @@
     "babel-cli": "^6.26.0",
     "browserslist": "^4.21.9",
     "concurrently": "^8.2.0",
-    "electron": "^25.2.0",
     "jsesc": "^3.0.2",
     "marked": "^5.1.0",
     "react": "^18.2.0",
@@ -35,7 +34,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.0.0",
-    "electron": "^25.2.0",
+    "electron": "^25.9.8",
     "eslint": "^8.38.0",
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.6.0",

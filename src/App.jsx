@@ -22,6 +22,9 @@ function App() {
         <button className="transparentButton">
           <a href="/editor">New Document</a>
         </button>
+        <input type="text" id="name" name="name" required minlength="4" maxlength="8" size="10" />
+
+
       </div>
       <h1>MyOKR!-ElmCose</h1>
     </>

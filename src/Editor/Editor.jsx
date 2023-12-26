@@ -159,6 +159,7 @@ useEffect(() => {
         multiline
         variant="outlined"
         value={markdownText}
+        onClick={() => console.log('Clicked')}
         onChange={(event) => setMarkdownText(event.target.value)}
         style={{
             maxHeight: '60vh',
