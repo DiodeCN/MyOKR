@@ -1,23 +1,36 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
+const path = require('node:path')
+
 let win;
 
 function createWindow () {
   // Calculate window size based on screen size
   const { width, height } = require('electron').screen.getPrimaryDisplay().workAreaSize
-  win = new BrowserWindow({
+  win = new BrowserWindow({    
     width: Math.max(Math.round(width * 0.6), 800),
     height: Math.max(Math.round(height * 0.8), 600),
+    preload: path.join(__dirname, 'preload.js'),
     frame: false,
-    titleBarStyle: 'hidden',
-    resizable: true,
+    transparent: true,
+
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
     }
-  })
 
-  win.loadURL('http://localhost:5173/')
+  })
+//win.setMovable(false);  // 这行代码设置窗口为不可移动
+  win.setMenuBarVisibility(false);
+
+
+
+  win.loadURL('http://localhost:5174/')
+
+  ipcMain.on('set-ignore-mouse-events', (event, ignore, options) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    win.setIgnoreMouseEvents(ignore, options)
+  })
 
   ipcMain.on('close-app', () => {
     if (win) {
