@@ -1,10 +1,21 @@
 .could-drag {
-    height: 50px;
-    background-color: rgba(128, 0, 128, 0.18); /* Faint purple tint */
-    -webkit-app-region: drag;
-    width: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
-  
+  display: flex;
+  align-items: center;
+  height: 50px;
+  background-color: rgba(0, 13, 70, 0.18);
+  -webkit-app-region: drag;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.yftno1 {
+  flex: 1;
+  text-align: left;
+  /* Optional: Adjust the font size and line height as needed */
+  font-size: 25px; /* Example size */
+  line-height: 50px; /* Same as the container height */
+  /* left: 30px; */
+  color: azure;
+}

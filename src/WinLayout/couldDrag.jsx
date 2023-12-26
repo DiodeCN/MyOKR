@@ -1,9 +1,13 @@
 import React from 'react';
-import './winLayout.css'; // Make sure to create this CSS file
+import './winLayout.css';
 
 const CouldDrag = () => {
   return (
-    <div className="could-drag"></div>
+    <div className="could-drag">
+      <div className="yftno1">
+         &nbsp;&nbsp;MYOKR-ELMCOSE
+      </div>
+    </div>
   );
 };
 
