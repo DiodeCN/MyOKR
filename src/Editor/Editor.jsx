@@ -32,6 +32,33 @@ const insertTextAtEnd = (textArea, newText) => {
 };
 
 const Editor = () => {
+
+  const [isAddingNew, setIsAddingNew] = useState(false);
+  const [newServer, setNewServer] = useState("");
+  const [servers, setServers] = useState(() => {
+    // 从localStorage获取保存的服务器列表
+    const saved = localStorage.getItem("servers");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const handleArticleTypeChange = (event) => {
+    if (event.target.value === "新增") {
+      setIsAddingNew(true);
+    } else {
+      setArticleType(event.target.value);
+    }
+  };
+
+  const handleConfirmNewServer = () => {
+    const updatedServers = [...servers, newServer];
+    setServers(updatedServers);
+    localStorage.setItem("servers", JSON.stringify(updatedServers));
+    setArticleType(newServer);
+    setIsAddingNew(false);
+    setNewServer("");
+  };
+
+
   const [articleType, setArticleType] = useState("");
   const [open, setOpen] = useState(false);
   const mdDocument = `
@@ -85,9 +112,6 @@ useEffect(() => {
     setOpen(false);
   };
 
-  const handleArticleTypeChange = (event) => {
-    setArticleType(event.target.value);
-  };
 
   const handleSubmit = () => {
     // 在这里处理提交逻辑
@@ -209,17 +233,46 @@ useEffect(() => {
       </Grid>
     </Grid>
 
-        <FormControl fullWidth sx={{ marginTop: "1rem" }}>
-          <InputLabel id="article-type-label">上传服务器</InputLabel>
+    <FormControl fullWidth sx={{ marginTop: "1rem" }}>
+        <InputLabel id="article-type-label">上传服务器</InputLabel>
+        {isAddingNew ? (
+          <Box sx={{ display: "flex" }}>
+            <TextField
+              fullWidth
+              value={newServer}
+              onChange={(e) => setNewServer(e.target.value)}
+              sx={{ marginRight: "1rem", flexGrow: 1 ,height: "50px"}}
+            />
+<Button
+  variant="contained"
+  sx={{ 
+    minWidth: "48px",
+    height: "56px",
+    padding: 0,
+    boxShadow: "none",  // 移除阴影
+    backgroundColor: "#99CCFF",  // 设置按钮颜色为红色
+    '&:hover': {
+      backgroundColor: "#f7a8b8",  // 鼠标悬停时的颜色变化
+      boxShadow: "none"  // 确保悬停时不显示阴影
+    }
+  }}
+  onClick={handleConfirmNewServer}
+>
+  ✔  {/* Emoji代替文字 */}
+</Button>
+
+          </Box>
+        ) : (
           <Select
             labelId="article-type-label"
             id="article-type-select"
             value={articleType}
             onChange={handleArticleTypeChange}
           >
-            <MenuItem value="新增">新增</MenuItem>
+            {/* ... Select的其他内容 ... */}
           </Select>
-        </FormControl>
+        )}
+      </FormControl>
 
         <Button
           fullWidth
