@@ -7,8 +7,8 @@ function createWindow () {
   // Calculate window size based on screen size
   const { width, height } = require('electron').screen.getPrimaryDisplay().workAreaSize
   win = new BrowserWindow({    
-    width: Math.max(Math.round(width * 0.65), 800),
-    height: Math.max(Math.round(height * 0.6), 600),
+    width: Math.max(Math.round(width * 0.75), 800),
+    height: Math.max(Math.round(height * 0.8), 600),
     preload: path.join(__dirname, 'preload.js'),
     frame: false,
     transparent: true,

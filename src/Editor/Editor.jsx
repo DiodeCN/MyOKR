@@ -1,6 +1,9 @@
 import CloseButton from "../WinLayout/closeApp";
 import MaximizeButton from "../WinLayout/maximizeApp";
+import CouldDrag from '../WinLayout/couldDrag'; // Import the couldDrag component
 import MinimizeButton from "../WinLayout/minimizeApp";
+import FileUploadHandler from '../Editor/FileUploadHandler';
+
 import React, { useState, useRef, useEffect } from "react";
 import {
   AppBar,
@@ -40,6 +43,22 @@ const Editor = () => {
     const saved = localStorage.getItem("servers");
     return saved ? JSON.parse(saved) : [];
   });
+
+  const handleFileDrop = (event) => {
+    console.log("fuck you");
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
+      const file = event.dataTransfer.files[0];
+      FileUploadHandler(file, handleUploadSuccess); // 使用您的FileUploadHandler处理文件
+    }
+  };
+
+  const handleUploadSuccess = (serverResponse) => {
+    // 插入返回的信息到文本编辑框
+    insertTextAtEnd(textAreaRef.current, serverResponse);
+  };
 
   const handleArticleTypeChange = (event) => {
     if (event.target.value === "新增") {
@@ -122,6 +141,7 @@ useEffect(() => {
       <CloseButton />
       <MaximizeButton />
       <MinimizeButton />
+      <CouldDrag />
       <Box
         sx={{
           display: "flex",
@@ -183,8 +203,9 @@ useEffect(() => {
         multiline
         variant="outlined"
         value={markdownText}
-        onClick={() => console.log('Clicked')}
         onChange={(event) => setMarkdownText(event.target.value)}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={handleFileDrop}
         style={{
             maxHeight: '60vh',
             minHeight: '60vh',
@@ -233,21 +254,21 @@ useEffect(() => {
       </Grid>
     </Grid>
 
+    <Grid item xs={6}>
+
     <FormControl fullWidth sx={{ marginTop: "1rem" }}>
         <InputLabel id="article-type-label">上传服务器</InputLabel>
         {isAddingNew ? (
-          <Box sx={{ display: "flex" }}>
+          <>
             <TextField
-              fullWidth
               value={newServer}
               onChange={(e) => setNewServer(e.target.value)}
-              sx={{ marginRight: "1rem", flexGrow: 1 ,height: "50px"}}
             />
 <Button
   variant="contained"
   sx={{ 
     minWidth: "48px",
-    height: "56px",
+    height: "48px",
     padding: 0,
     boxShadow: "none",  // 移除阴影
     backgroundColor: "#99CCFF",  // 设置按钮颜色为红色
@@ -258,10 +279,11 @@ useEffect(() => {
   }}
   onClick={handleConfirmNewServer}
 >
-  ✔  {/* Emoji代替文字 */}
+确认
 </Button>
 
-          </Box>
+
+          </>
         ) : (
           <Select
             labelId="article-type-label"
@@ -269,10 +291,17 @@ useEffect(() => {
             value={articleType}
             onChange={handleArticleTypeChange}
           >
-            {/* ... Select的其他内容 ... */}
+            {servers.map((server, index) => (
+              <MenuItem key={index} value={server}>
+                {server}
+              </MenuItem>
+            ))}
+            <MenuItem value="新增">新增</MenuItem>
           </Select>
         )}
       </FormControl>
+
+      </Grid>
 
         <Button
           fullWidth
