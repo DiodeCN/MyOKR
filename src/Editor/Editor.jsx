@@ -36,6 +36,24 @@ const insertTextAtEnd = (textArea, newText) => {
 
 const Editor = () => {
 
+  useEffect(() => {
+    // 页面初始化时尝试连接到RESTful服务器
+    fetch("http://localhost:6222/api/connect")
+      .then((response) => {
+        if (response.ok) {
+          return response.text();  // 解析为文本响应而不是JSON
+        }
+        throw new Error('Network response was not ok.');
+      })
+      .then((data) => {
+        console.log("连接成功:", data);  // 打印成功的文本信息
+      })
+      .catch((error) => {
+        console.error("连接失败:", error);  // 打印错误信息
+      });
+  }, []);
+  
+
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [newServer, setNewServer] = useState("");
   const [servers, setServers] = useState(() => {
@@ -138,10 +156,10 @@ useEffect(() => {
 
   return (
     <>
+      <CouldDrag />
       <CloseButton />
       <MaximizeButton />
       <MinimizeButton />
-      <CouldDrag />
       <Box
         sx={{
           display: "flex",
