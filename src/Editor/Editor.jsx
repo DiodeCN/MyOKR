@@ -56,11 +56,32 @@ const Editor = () => {
 
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [newServer, setNewServer] = useState("");
+  const [isAddressValid, setIsAddressValid] = useState(true);
+
   const [servers, setServers] = useState(() => {
     // 从localStorage获取保存的服务器列表
     const saved = localStorage.getItem("servers");
     return saved ? JSON.parse(saved) : [];
   });
+
+  const handleConfirmNewServer = () => {
+    const isValidAddress = /^(http:\/\/|https:\/\/|(\d{1,3}\.){3}\d{1,3})/.test(newServer);
+    if (!isValidAddress) {
+      setIsAddressValid(false);  // 如果地址格式不正确，设置状态为 false
+      return;  // 不继续执行后续的添加服务器逻辑
+    }
+    setIsAddressValid(true);  // 如果地址格式正确，继续执行添加服务器的逻辑
+  
+    const updatedServers = [...servers, newServer];
+    setServers(updatedServers);
+    localStorage.setItem("servers", JSON.stringify(updatedServers));
+    setArticleType(newServer);
+    setIsAddingNew(false);
+    setNewServer("");
+  };
+  
+
+  
 
   const handleFileDrop = (event) => {
     console.log("fuck you");
@@ -86,14 +107,6 @@ const Editor = () => {
     }
   };
 
-  const handleConfirmNewServer = () => {
-    const updatedServers = [...servers, newServer];
-    setServers(updatedServers);
-    localStorage.setItem("servers", JSON.stringify(updatedServers));
-    setArticleType(newServer);
-    setIsAddingNew(false);
-    setNewServer("");
-  };
 
 
   const [articleType, setArticleType] = useState("");
@@ -341,14 +354,14 @@ useEffect(() => {
           发送
         </Button>
       </Box>
-      <Dialog onClose={handleClose} open={open} maxWidth="md" fullWidth>
-        <DialogTitle>
-          关于
-          <IconButton
+
+      <Dialog open={!isAddressValid} onClose={() => setIsAddressValid(true) }>
+  <DialogTitle>{"无效的服务器地址"}</DialogTitle>
+  <IconButton
             id="view"
             edge="end"
             color="inherit"
-            onClick={handleClose}
+            onClick={() => setIsAddressValid(true)}
             aria-label="close"
             sx={{
               position: "absolute",
@@ -358,18 +371,56 @@ useEffect(() => {
             }}
           >
             <CloseIcon />
-          </IconButton> 
-        </DialogTitle>
-        <DialogContent dividers sx={{ overflowX: "hidden", maxWidth: "100%" }}>
-          <ReactMarkdown remarkPlugins={[gfm]} children={mdDocument} />
-        </DialogContent>
+            </IconButton> 
+  <DialogContent>
+    <DialogContent>
+      <h2>请检查服务器地址格式</h2>
+      地址应以 "http://" 或 "https://" 开头
+      ,或者是一个有效的 IPv4 地址。
+    </DialogContent>
+  </DialogContent>
+  <DialogActions>
+  </DialogActions>
+</Dialog>
 
-        <DialogActions>
-          <Button onClick={handleClose} color="primary">
-            确定
-          </Button>
-        </DialogActions>
-      </Dialog>
+
+
+
+<Dialog onClose={handleClose} open={open} maxWidth="md" fullWidth>
+  <DialogTitle>
+    关于
+    <IconButton
+      id="view"
+      edge="end"
+      color="inherit"
+      onClick={handleClose}
+      aria-label="close"
+      sx={{
+        position: "absolute",
+        right: "8px",
+        top: "8px",
+        color: (theme) => theme.palette.grey[500]
+      }}
+    >
+      <CloseIcon />
+    </IconButton> 
+  </DialogTitle>
+  <DialogContent 
+    dividers 
+    sx={{ overflow: "hidden", maxWidth: "100%" }}
+  >
+    <ReactMarkdown remarkPlugins={[gfm]} children={mdDocument} />
+  </DialogContent>
+  <DialogActions>
+  </DialogActions>
+</Dialog>
+
+
+
+
+
+
+
     </>
   );
 };
