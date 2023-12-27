@@ -1,8 +1,8 @@
 import CloseButton from "../WinLayout/closeApp";
 import MaximizeButton from "../WinLayout/maximizeApp";
-import CouldDrag from '../WinLayout/couldDrag'; // Import the couldDrag component
+import CouldDrag from "../WinLayout/couldDrag"; // Import the couldDrag component
 import MinimizeButton from "../WinLayout/minimizeApp";
-import FileUploadHandler from '../Editor/FileUploadHandler';
+import FileUploadHandler from "../Editor/FileUploadHandler";
 
 import React, { useState, useRef, useEffect } from "react";
 import {
@@ -21,7 +21,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  IconButton
+  IconButton,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import Grid from "@mui/material/Grid";
@@ -35,24 +35,22 @@ const insertTextAtEnd = (textArea, newText) => {
 };
 
 const Editor = () => {
-
   useEffect(() => {
     // 页面初始化时尝试连接到RESTful服务器
     fetch("http://localhost:6222/api/connect")
       .then((response) => {
         if (response.ok) {
-          return response.text();  // 解析为文本响应而不是JSON
+          return response.text(); // 解析为文本响应而不是JSON
         }
-        throw new Error('Network response was not ok.');
+        throw new Error("Network response was not ok.");
       })
       .then((data) => {
-        console.log(data);  // 打印成功的文本信息
+        console.log(data); // 打印成功的文本信息
       })
       .catch((error) => {
-        console.error("连接失败:", error);  // 打印错误信息
+        console.error("连接失败:", error); // 打印错误信息
       });
   }, []);
-  
 
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [newServer, setNewServer] = useState("");
@@ -65,13 +63,15 @@ const Editor = () => {
   });
 
   const handleConfirmNewServer = () => {
-    const isValidAddress = /^(http:\/\/|https:\/\/|(\d{1,3}\.){3}\d{1,3})/.test(newServer);
+    const isValidAddress = /^(http:\/\/|https:\/\/|(\d{1,3}\.){3}\d{1,3})/.test(
+      newServer
+    );
     if (!isValidAddress) {
-      setIsAddressValid(false);  // 如果地址格式不正确，设置状态为 false
-      return;  // 不继续执行后续的添加服务器逻辑
+      setIsAddressValid(false); // 如果地址格式不正确，设置状态为 false
+      return; // 不继续执行后续的添加服务器逻辑
     }
-    setIsAddressValid(true);  // 如果地址格式正确，继续执行添加服务器的逻辑
-  
+    setIsAddressValid(true); // 如果地址格式正确，继续执行添加服务器的逻辑
+
     const updatedServers = [...servers, newServer];
     setServers(updatedServers);
     localStorage.setItem("servers", JSON.stringify(updatedServers));
@@ -79,9 +79,6 @@ const Editor = () => {
     setIsAddingNew(false);
     setNewServer("");
   };
-  
-
-  
 
   const handleFileDrop = (event) => {
     console.log("fuck you");
@@ -107,8 +104,6 @@ const Editor = () => {
     }
   };
 
-
-
   const [articleType, setArticleType] = useState("");
   const [open, setOpen] = useState(false);
   const mdDocument = `
@@ -117,43 +112,41 @@ const Editor = () => {
 ## 想做给博客的Markdown编辑器来着，结果不小心做成OKR乐！
 `;
 
-const [markdownText, setMarkdownText] = useState("");
-const previewRef = useRef(null);
+  const [markdownText, setMarkdownText] = useState("");
+  const previewRef = useRef(null);
 
-useEffect(() => {
-  if (previewRef.current) {
-    previewRef.current.scrollTop = previewRef.current.scrollHeight;
-  }
-}, [markdownText]);
+  useEffect(() => {
+    if (previewRef.current) {
+      previewRef.current.scrollTop = previewRef.current.scrollHeight;
+    }
+  }, [markdownText]);
 
   const textAreaRef = React.createRef();
-
 
   const handleInsertClick = (insertion, id) => {
     const textArea = textAreaRef.current;
     if (textArea) {
       const { selectionStart, selectionEnd } = textArea;
-      
+
       insertTextAtEnd(textArea, `${insertion}{#${id}}\n\n`);
       setMarkdownText(textArea.value);
-  
+
       // Restore cursor position.
       textArea.selectionStart = selectionStart;
       textArea.selectionEnd = selectionEnd;
     }
   };
-  
+
   const markdownRef = useRef(null);
 
   useEffect(() => {
     if (markdownRef.current) {
-      setMarkdownHeight(`${markdownRef.current.getBoundingClientRect().height}px`);
+      setMarkdownHeight(
+        `${markdownRef.current.getBoundingClientRect().height}px`
+      );
     }
   }, [markdownText]);
 
-
-
-  
   const handleOpen = () => {
     setOpen(true);
   };
@@ -161,7 +154,6 @@ useEffect(() => {
   const handleClose = () => {
     setOpen(false);
   };
-
 
   const handleSubmit = () => {
     // 在这里处理提交逻辑
@@ -179,7 +171,7 @@ useEffect(() => {
           flexDirection: "column",
           gap: "1rem",
           width: "100%",
-          margin: "0 auto"
+          margin: "0 auto",
         }}
       >
         <Grid item xs={12} sx={{ flexGrow: 1 }}>
@@ -190,7 +182,7 @@ useEffect(() => {
             style={{
               borderRadius: 8,
               backgroundColor: "transparent",
-              boxShadow: "none"
+              boxShadow: "none",
             }}
           >
             <Toolbar>
@@ -227,112 +219,106 @@ useEffect(() => {
           </AppBar>
         </Grid>
 
-        <Grid container spacing={2} >
-        <Grid item xs={6} style={{maxHeight: '60vh', display: 'flex'}}>
-    <TextField
-        fullWidth
-        multiline
-        variant="outlined"
-        value={markdownText}
-        onChange={(event) => setMarkdownText(event.target.value)}
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={handleFileDrop}
-        style={{
-            maxHeight: '60vh',
-            minHeight: '60vh',
-            minWidth: '35vh',
-            maxWidth: '45vh',
-            overflow: 'auto',
-            backgroundColor: 'rgba(255,255,255,0.3)', 
-            borderRadius: '10px', 
-            boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
-            backdropFilter: 'blur(4px)', 
-            border: '1px solid rgba(255,255,255,0.18)', 
-            flexGrow: 10,
-            display: 'flex',
-            flexDirection: 'column'
-        }}
-    />
-</Grid>
-
-
-      <Grid item xs={6}>
-        <div
-          className="view"
-          ref={previewRef}
-          style={{
-            minHeight: '60vh',
-            maxHeight: "60vh",
-            width: "100%",
-            minWidth: '35vh',
-            maxWidth: '45vh',
-            overflowX: "hidden",
-            overflowY: "auto",
-            backgroundColor: 'rgba(255,255,255,0.3)', // Add this
-            borderRadius: '10px', // Add this
-            boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)', // Add this
-            backdropFilter: 'blur(4px)', // Add this
-            border: '1px solid rgba(255,255,255,0.18)', // Add this
-            flexGrow: 1, // Add this
-            display: 'flex', // Add this
-            flexDirection: 'column', // Add this
-            textAlign: "left"  // Make content align left
-
-          }}
-        >
-          <ReactMarkdown remarkPlugins={[gfm]} children={markdownText} />
-        </div>
-      </Grid>
-    </Grid>
-
-    <Grid item xs={6}>
-
-    <FormControl fullWidth sx={{ marginTop: "1rem" }}>
-        <InputLabel id="article-type-label">上传服务器</InputLabel>
-        {isAddingNew ? (
-          <>
+        <Grid container spacing={2}>
+          <Grid item xs={6} style={{ maxHeight: "60vh", display: "flex" }}>
             <TextField
-              value={newServer}
-              onChange={(e) => setNewServer(e.target.value)}
+              fullWidth
+              multiline
+              variant="outlined"
+              value={markdownText}
+              onChange={(event) => setMarkdownText(event.target.value)}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={handleFileDrop}
+              style={{
+                maxHeight: "60vh",
+                minHeight: "60vh",
+                minWidth: "35vh",
+                maxWidth: "45vh",
+                overflow: "auto",
+                backgroundColor: "rgba(255,255,255,0.3)",
+                borderRadius: "10px",
+                boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
+                backdropFilter: "blur(4px)",
+                border: "1px solid rgba(255,255,255,0.18)",
+                flexGrow: 10,
+                display: "flex",
+                flexDirection: "column",
+              }}
             />
-<Button
-  variant="contained"
-  sx={{ 
-    minWidth: "48px",
-    height: "48px",
-    padding: 0,
-    boxShadow: "none",  // 移除阴影
-    backgroundColor: "#99CCFF",  // 设置按钮颜色为红色
-    '&:hover': {
-      backgroundColor: "#f7a8b8",  // 鼠标悬停时的颜色变化
-      boxShadow: "none"  // 确保悬停时不显示阴影
-    }
-  }}
-  onClick={handleConfirmNewServer}
->
-确认
-</Button>
+          </Grid>
 
+          <Grid item xs={6}>
+            <div
+              className="view"
+              ref={previewRef}
+              style={{
+                minHeight: "60vh",
+                maxHeight: "60vh",
+                width: "100%",
+                minWidth: "35vh",
+                maxWidth: "45vh",
+                overflowX: "hidden",
+                overflowY: "auto",
+                backgroundColor: "rgba(255,255,255,0.3)", // Add this
+                borderRadius: "10px", // Add this
+                boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)", // Add this
+                backdropFilter: "blur(4px)", // Add this
+                border: "1px solid rgba(255,255,255,0.18)", // Add this
+                flexGrow: 1, // Add this
+                display: "flex", // Add this
+                flexDirection: "column", // Add this
+                textAlign: "left", // Make content align left
+              }}
+            >
+              <ReactMarkdown remarkPlugins={[gfm]} children={markdownText} />
+            </div>
+          </Grid>
+        </Grid>
 
-          </>
-        ) : (
-          <Select
-            labelId="article-type-label"
-            id="article-type-select"
-            value={articleType}
-            onChange={handleArticleTypeChange}
-          >
-            {servers.map((server, index) => (
-              <MenuItem key={index} value={server}>
-                {server}
-              </MenuItem>
-            ))}
-            <MenuItem value="新增">新增</MenuItem>
-          </Select>
-        )}
-      </FormControl>
-
-      </Grid>
+        <Grid item xs={6}>
+          <FormControl fullWidth sx={{ marginTop: "1rem" }}>
+            <InputLabel id="article-type-label">上传服务器</InputLabel>
+            {isAddingNew ? (
+              <>
+                <TextField
+                  value={newServer}
+                  onChange={(e) => setNewServer(e.target.value)}
+                />
+                <Button
+                  variant="contained"
+                  sx={{
+                    minWidth: "48px",
+                    height: "48px",
+                    padding: 0,
+                    boxShadow: "none", // 移除阴影
+                    backgroundColor: "#99CCFF", // 设置按钮颜色为红色
+                    "&:hover": {
+                      backgroundColor: "#f7a8b8", // 鼠标悬停时的颜色变化
+                      boxShadow: "none", // 确保悬停时不显示阴影
+                    },
+                  }}
+                  onClick={handleConfirmNewServer}
+                >
+                  确认
+                </Button>
+              </>
+            ) : (
+              <Select
+                labelId="article-type-label"
+                id="article-type-select"
+                value={articleType}
+                onChange={handleArticleTypeChange}
+              >
+                {servers.map((server, index) => (
+                  <MenuItem key={index} value={server}>
+                    {server}
+                  </MenuItem>
+                ))}
+                <MenuItem value="新增">新增</MenuItem>
+              </Select>
+            )}
+          </FormControl>
+        </Grid>
 
         <Button
           fullWidth
@@ -355,72 +341,56 @@ useEffect(() => {
         </Button>
       </Box>
 
-      <Dialog open={!isAddressValid} onClose={() => setIsAddressValid(true) }>
-  <DialogTitle>{"无效的服务器地址"}</DialogTitle>
-  <IconButton
+      <Dialog open={!isAddressValid} onClose={() => setIsAddressValid(true)}>
+        <DialogTitle>{"无效的服务器地址"}</DialogTitle>
+        <IconButton
+          id="view"
+          edge="end"
+          color="inherit"
+          onClick={() => setIsAddressValid(true)}
+          aria-label="close"
+          sx={{
+            position: "absolute",
+            right: "8px",
+            top: "8px",
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+        <DialogContent>
+          <DialogContent>
+            <h2>请检查服务器地址格式</h2>
+            地址应以 "http://" 或 "https://" 开头 ,或者是一个有效的 IPv4 地址。
+          </DialogContent>
+        </DialogContent>
+        <DialogActions></DialogActions>
+      </Dialog>
+
+      <Dialog onClose={handleClose} open={open} maxWidth="md" fullWidth>
+        <DialogTitle>
+          关于
+          <IconButton
             id="view"
             edge="end"
             color="inherit"
-            onClick={() => setIsAddressValid(true)}
+            onClick={handleClose}
             aria-label="close"
             sx={{
               position: "absolute",
               right: "8px",
               top: "8px",
-              color: (theme) => theme.palette.grey[500]
+              color: (theme) => theme.palette.grey[500],
             }}
           >
             <CloseIcon />
-            </IconButton> 
-  <DialogContent>
-    <DialogContent>
-      <h2>请检查服务器地址格式</h2>
-      地址应以 "http://" 或 "https://" 开头
-      ,或者是一个有效的 IPv4 地址。
-    </DialogContent>
-  </DialogContent>
-  <DialogActions>
-  </DialogActions>
-</Dialog>
-
-
-
-
-<Dialog onClose={handleClose} open={open} maxWidth="md" fullWidth>
-  <DialogTitle>
-    关于
-    <IconButton
-      id="view"
-      edge="end"
-      color="inherit"
-      onClick={handleClose}
-      aria-label="close"
-      sx={{
-        position: "absolute",
-        right: "8px",
-        top: "8px",
-        color: (theme) => theme.palette.grey[500]
-      }}
-    >
-      <CloseIcon />
-    </IconButton> 
-  </DialogTitle>
-  <DialogContent 
-    dividers 
-    sx={{ overflow: "hidden", maxWidth: "100%" }}
-  >
-    <ReactMarkdown remarkPlugins={[gfm]} children={mdDocument} />
-  </DialogContent>
-  <DialogActions>
-  </DialogActions>
-</Dialog>
-
-
-
-
-
-
-
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers sx={{ overflow: "hidden", maxWidth: "100%" }}>
+          <ReactMarkdown remarkPlugins={[gfm]} children={mdDocument} />
+        </DialogContent>
+        <DialogActions></DialogActions>
+      </Dialog>
     </>
   );
 };
