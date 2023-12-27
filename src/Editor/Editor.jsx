@@ -46,7 +46,7 @@ const Editor = () => {
         throw new Error('Network response was not ok.');
       })
       .then((data) => {
-        console.log("连接成功:", data);  // 打印成功的文本信息
+        console.log(data);  // 打印成功的文本信息
       })
       .catch((error) => {
         console.error("连接失败:", error);  // 打印错误信息
