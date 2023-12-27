@@ -56,6 +56,31 @@ const Editor = () => {
   const [newServer, setNewServer] = useState("");
   const [isAddressValid, setIsAddressValid] = useState(true);
 
+  const handleInsertClick = (insertText) => {
+    // Assuming markdownText is the current state of the text area
+    const currentText = markdownText;
+  
+    // Assuming textAreaRef is a ref to your text area
+    const selectionStart = textAreaRef.current.selectionStart;
+  
+    // Insert the new text at the cursor position
+    const newText = currentText.substring(0, selectionStart) + insertText;
+  
+    // Update the markdown text
+    setMarkdownText(newText);
+  
+    // Update the cursor position after state update
+    setTimeout(() => {
+      textAreaRef.current.focus();
+      const newCursorPos = selectionStart + insertText.length;
+      textAreaRef.current.setSelectionRange(newCursorPos, newCursorPos);
+    }, 0);
+  };
+  
+  
+
+
+
   const [servers, setServers] = useState(() => {
     // 从localStorage获取保存的服务器列表
     const saved = localStorage.getItem("servers");
@@ -123,19 +148,8 @@ const Editor = () => {
 
   const textAreaRef = React.createRef();
 
-  const handleInsertClick = (insertion, id) => {
-    const textArea = textAreaRef.current;
-    if (textArea) {
-      const { selectionStart, selectionEnd } = textArea;
 
-      insertTextAtEnd(textArea, `${insertion}{#${id}}\n\n`);
-      setMarkdownText(textArea.value);
-
-      // Restore cursor position.
-      textArea.selectionStart = selectionStart;
-      textArea.selectionEnd = selectionEnd;
-    }
-  };
+  
 
   const markdownRef = useRef(null);
 
@@ -224,6 +238,7 @@ const Editor = () => {
             <TextField
               fullWidth
               multiline
+              ref={textAreaRef}
               variant="outlined"
               value={markdownText}
               onChange={(event) => setMarkdownText(event.target.value)}
@@ -232,15 +247,15 @@ const Editor = () => {
               style={{
                 maxHeight: "60vh",
                 minHeight: "60vh",
-                minWidth: "35vh",
-                maxWidth: "45vh",
+                minWidth: "42vh",
+                maxWidth: "42vh",
                 overflow: "auto",
                 backgroundColor: "rgba(255,255,255,0.3)",
                 borderRadius: "10px",
                 boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
                 backdropFilter: "blur(4px)",
                 border: "1px solid rgba(255,255,255,0.18)",
-                flexGrow: 10,
+                flexGrow: 100,
                 display: "flex",
                 flexDirection: "column",
               }}
@@ -255,8 +270,8 @@ const Editor = () => {
                 minHeight: "60vh",
                 maxHeight: "60vh",
                 width: "100%",
-                minWidth: "35vh",
-                maxWidth: "45vh",
+                minWidth: "42vh",
+                maxWidth: "42vh",
                 overflowX: "hidden",
                 overflowY: "auto",
                 backgroundColor: "rgba(255,255,255,0.3)", // Add this
