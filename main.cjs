@@ -7,16 +7,16 @@ function createWindow () {
   // Calculate window size based on screen size
   const { width, height } = require('electron').screen.getPrimaryDisplay().workAreaSize
   win = new BrowserWindow({    
-    width: Math.max(Math.round(width * 0.6), 800),
-    height: Math.max(Math.round(height * 0.8), 600),
+    width: Math.max(Math.round(width * 0.65), 800),
+    height: Math.max(Math.round(height * 0.6), 600),
     preload: path.join(__dirname, 'preload.js'),
     frame: false,
     transparent: true,
-
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
+      backgroundColor: '#000d462e' // Set background color to transparent
     }
 
   })
@@ -25,7 +25,7 @@ function createWindow () {
 
 
 
-  win.loadURL('http://localhost:5174/')
+  win.loadURL('http://localhost:5173/')
 
   ipcMain.on('set-ignore-mouse-events', (event, ignore, options) => {
     const win = BrowserWindow.fromWebContents(event.sender)
