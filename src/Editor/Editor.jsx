@@ -80,7 +80,6 @@ const Editor = () => {
   
 
 
-
   const [servers, setServers] = useState(() => {
     // 从localStorage获取保存的服务器列表
     const saved = localStorage.getItem("servers");
@@ -106,15 +105,41 @@ const Editor = () => {
   };
 
   const handleFileDrop = (event) => {
-    console.log("fuck you");
+    console.log("文件拖拽");
     event.preventDefault();
     event.stopPropagation();
 
     if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
       const file = event.dataTransfer.files[0];
-      FileUploadHandler(file, handleUploadSuccess); // 使用您的FileUploadHandler处理文件
+      uploadFileToServer(file); // 新增的上传函数
     }
   };
+
+  const uploadFileToServer = (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+  
+    fetch(articleType, { // 使用当前选中的服务器URL
+      method: "POST",
+      body: formData,
+    })
+    .then(response => {
+      if (response.ok) {
+        return response.text(); // 获取文本响应
+      } else {
+        throw new Error('上传失败');
+      }
+    })
+    .then(data => {
+      console.log('文件上传成功:', data); // 直接打印文本信息
+      // 这里可以添加更多的UI反馈
+    })
+    .catch(error => {
+      console.error('上传错误:', error);
+    });
+  };
+  
+  
 
   const handleUploadSuccess = (serverResponse) => {
     // 插入返回的信息到文本编辑框
