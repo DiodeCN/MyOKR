@@ -239,7 +239,7 @@ const Editor = () => {
               fullWidth
               multiline
               ref={textAreaRef}
-              variant="outlined"
+              variant="standard"
               value={markdownText}
               onChange={(event) => setMarkdownText(event.target.value)}
               onDragOver={(e) => e.preventDefault()}
@@ -259,6 +259,9 @@ const Editor = () => {
                 display: "flex",
                 flexDirection: "column",
               }}
+              InputProps={{
+              disableUnderline: true,
+  }}
             />
           </Grid>
 
