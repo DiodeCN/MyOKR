@@ -35,6 +35,8 @@ const insertTextAtEnd = (textArea, newText) => {
 };
 
 const Editor = () => {
+  
+{/*
   useEffect(() => {
     // 页面初始化时尝试连接到RESTful服务器
     fetch("http://localhost:6222/api/connect")
@@ -51,6 +53,7 @@ const Editor = () => {
         console.error("连接失败:", error); // 打印错误信息
       });
   }, []);
+*/}
 
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [newServer, setNewServer] = useState("");
@@ -119,7 +122,7 @@ const Editor = () => {
     const formData = new FormData();
     formData.append("file", file);
   
-    fetch(articleType, { // 使用当前选中的服务器URL
+    fetch(articleType + "/upload" , { // 使用当前选中的服务器URL
       method: "POST",
       body: formData,
     })
@@ -131,13 +134,22 @@ const Editor = () => {
       }
     })
     .then(data => {
-      console.log('文件上传成功:', data); // 直接打印文本信息
-      // 这里可以添加更多的UI反馈
+      console.log(data); // 直接打印文本信息
+      // 检查响应是否为“文件上传成功”
+      if (data.startsWith("上传成功：")) {
+        const filename = data.substring("上传成功：".length);
+        // 检查文件是否为图片格式
+        if (/\.(jpg|jpeg|png|gif)$/i.test(filename)) {
+          const markdownImageString = `![photo](${articleType}/share/${filename})`;
+          handleInsertClick(markdownImageString); // 调用 handleInsertClick 插入 Markdown 图片字符串
+        }
+      }
     })
     .catch(error => {
       console.error('上传错误:', error);
     });
   };
+  
   
   
 
@@ -264,7 +276,7 @@ const Editor = () => {
               fullWidth
               multiline
               ref={textAreaRef}
-              variant="standard"
+              variant="filled"
               value={markdownText}
               onChange={(event) => setMarkdownText(event.target.value)}
               onDragOver={(e) => e.preventDefault()}

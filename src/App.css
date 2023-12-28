@@ -79,3 +79,12 @@ body{
 .transparentButton:hover {
   background-color: rgba(100, 108, 255, 0.15);
 }
+
+.view img {
+  max-width: 95%;
+  max-height: 95%;
+  object-fit: contain;
+  display: block; /* 设置图片为块级元素 */
+  margin-left: auto; /* 左边距自动 */
+  margin-right: auto; /* 右边距自动 */
+}
