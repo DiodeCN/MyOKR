@@ -2,7 +2,8 @@ import CloseButton from "../WinLayout/closeApp";
 import MaximizeButton from "../WinLayout/maximizeApp";
 import CouldDrag from "../WinLayout/couldDrag"; // Import the couldDrag component
 import MinimizeButton from "../WinLayout/minimizeApp";
-import FileUploadHandler from "../Editor/FileUploadHandler";
+import rehypeRaw from 'rehype-raw';
+
 
 import React, { useState, useRef, useEffect } from "react";
 import {
@@ -21,6 +22,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Snackbar,
   IconButton,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
@@ -36,25 +38,8 @@ const insertTextAtEnd = (textArea, newText) => {
 
 const Editor = () => {
   
-{/*
-  useEffect(() => {
-    // 页面初始化时尝试连接到RESTful服务器
-    fetch("http://localhost:6222/api/connect")
-      .then((response) => {
-        if (response.ok) {
-          return response.text(); // 解析为文本响应而不是JSON
-        }
-        throw new Error("Network response was not ok.");
-      })
-      .then((data) => {
-        console.log(data); // 打印成功的文本信息
-      })
-      .catch((error) => {
-        console.error("连接失败:", error); // 打印错误信息
-      });
-  }, []);
-*/}
-
+  const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');  
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [newServer, setNewServer] = useState("");
   const [isAddressValid, setIsAddressValid] = useState(true);
@@ -74,10 +59,18 @@ const Editor = () => {
   
     // Update the cursor position after state update
     setTimeout(() => {
-      textAreaRef.current.focus();
+      if (textAreaRef.current) {
+        textAreaRef.current.focus();}
       const newCursorPos = selectionStart + insertText.length;
       textAreaRef.current.setSelectionRange(newCursorPos, newCursorPos);
     }, 0);
+  };
+  
+  const fetchWithTimeout = (url, options, timeout = 3000) => {
+    return new Promise((resolve, reject) => {
+      fetch(url, options).then(resolve, reject);
+      setTimeout(() => reject(new Error('服务器超时请检查配置')), timeout);
+    });
   };
   
   
@@ -122,31 +115,31 @@ const Editor = () => {
     const formData = new FormData();
     formData.append("file", file);
   
-    fetch(articleType + "/upload" , { // 使用当前选中的服务器URL
+    fetchWithTimeout(articleType + "/upload", {
       method: "POST",
       body: formData,
-    })
+    }, 3000) // 3000 milliseconds timeout
     .then(response => {
       if (response.ok) {
-        return response.text(); // 获取文本响应
+        return response.text();
       } else {
         throw new Error('上传失败');
       }
     })
     .then(data => {
-      console.log(data); // 直接打印文本信息
-      // 检查响应是否为“文件上传成功”
+      console.log(data);
       if (data.startsWith("上传成功：")) {
         const filename = data.substring("上传成功：".length);
-        // 检查文件是否为图片格式
         if (/\.(jpg|jpeg|png|gif)$/i.test(filename)) {
           const markdownImageString = `![photo](${articleType}/share/${filename})`;
-          handleInsertClick(markdownImageString); // 调用 handleInsertClick 插入 Markdown 图片字符串
+          handleInsertClick(markdownImageString);
         }
       }
     })
     .catch(error => {
       console.error('上传错误:', error);
+      setErrorMessage(error.message);
+      setOpenErrorSnackbar(true);
     });
   };
   
@@ -172,6 +165,7 @@ const Editor = () => {
 # 榆法糖-MyOKR！
 
 ## 想做给博客的Markdown编辑器来着，结果不小心做成OKR乐！
+
 `;
 
   const [markdownText, setMarkdownText] = useState("");
@@ -183,8 +177,7 @@ const Editor = () => {
     }
   }, [markdownText]);
 
-  const textAreaRef = React.createRef();
-
+  const textAreaRef = useRef(null);
 
   
 
@@ -209,6 +202,32 @@ const Editor = () => {
   const handleSubmit = () => {
     // 在这里处理提交逻辑
   };
+
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+
+  const handleCopyToClipboard = () => {
+    if (textAreaRef.current) {
+      navigator.clipboard.writeText(markdownText)
+        .then(() => {
+          console.log("复制成功：" , markdownText);
+          setOpenSnackbar(true); // 成功时打开 Snackbar
+        })
+        .catch(err => {
+          console.error('复制失败:', err);
+        });
+    } else {
+      console.error('文本区域的引用未定义');
+    }
+  };
+  
+
+const handleCloseSnackbar = (event, reason) => {
+  if (reason === 'clickaway') {
+    return;
+  }
+  setOpenSnackbar(false);
+};
+
 
   return (
     <>
@@ -266,6 +285,10 @@ const Editor = () => {
               >
                 有序列表项
               </Button>
+              <Button onClick={handleCopyToClipboard}>
+  复制文本
+</Button>
+
             </Toolbar>
           </AppBar>
         </Grid>
@@ -273,6 +296,7 @@ const Editor = () => {
         <Grid container spacing={2}>
           <Grid item xs={6} style={{ maxHeight: "60vh", display: "flex" }}>
             <TextField
+              spellCheck={false}
               fullWidth
               multiline
               ref={textAreaRef}
@@ -325,7 +349,7 @@ const Editor = () => {
                 textAlign: "left", // Make content align left
               }}
             >
-              <ReactMarkdown remarkPlugins={[gfm]} children={markdownText} />
+              <ReactMarkdown remarkPlugins={[gfm]} children={markdownText} rehypePlugins={[rehypeRaw]}/>
             </div>
           </Grid>
         </Grid>
@@ -337,6 +361,7 @@ const Editor = () => {
               <>
                 <TextField
                   value={newServer}
+                  spellCheck={false}
                   onChange={(e) => setNewServer(e.target.value)}
                 />
                 <Button
@@ -446,6 +471,36 @@ const Editor = () => {
         </DialogContent>
         <DialogActions></DialogActions>
       </Dialog>
+
+      <Snackbar
+  open={openSnackbar}
+  autoHideDuration={1200}
+  onClose={handleCloseSnackbar}
+  message="复制成功"
+  action={
+    <React.Fragment>
+      <IconButton size="small" aria-label="close" color="inherit" onClick={handleCloseSnackbar}>
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
+  }
+/>
+
+<Snackbar
+   open={openErrorSnackbar}
+   autoHideDuration={6000}
+   onClose={() => setOpenErrorSnackbar(false)}
+   message={errorMessage}
+   action={
+     <React.Fragment>
+       <IconButton size="small" aria-label="close" color="inherit" onClick={() => setOpenErrorSnackbar(false)}>
+         <CloseIcon fontSize="small" />
+       </IconButton>
+     </React.Fragment>
+   }
+/>
+
+
     </>
   );
 };

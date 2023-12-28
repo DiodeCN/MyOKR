@@ -16,7 +16,8 @@ function createWindow () {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
-      backgroundColor: '#000d462e' // Set background color to transparent
+      backgroundColor: '#000d462e', // Set background color to transparent,
+      ignoreCertificateErrors: true, // 添加这一行
     }
 
   })
@@ -25,7 +26,7 @@ function createWindow () {
 
 
 
-  win.loadURL('http://localhost:5173/')
+  win.loadURL('https://localhost:5173/')
 
   ipcMain.on('set-ignore-mouse-events', (event, ignore, options) => {
     const win = BrowserWindow.fromWebContents(event.sender)
@@ -68,3 +69,5 @@ app.on('activate', () => {
     createWindow()
   }
 })
+
+app.commandLine.appendSwitch('ignore-certificate-errors')
