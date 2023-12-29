@@ -3,6 +3,8 @@ import MaximizeButton from "../WinLayout/maximizeApp";
 import CouldDrag from "../WinLayout/couldDrag"; // Import the couldDrag component
 import MinimizeButton from "../WinLayout/minimizeApp";
 import rehypeRaw from "rehype-raw";
+import Shortcut from './ShortCut';
+
 
 import React, { useState, useRef, useEffect } from "react";
 import {
@@ -28,10 +30,6 @@ import Grid from "@mui/material/Grid";
 import ReactMarkdown from "react-markdown";
 import gfm from "remark-gfm";
 
-const insertTextAtEnd = (textArea, newText) => {
-  const { value } = textArea;
-  textArea.value = value + newText;
-};
 
 const Editor = () => {
   const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
@@ -61,6 +59,7 @@ const Editor = () => {
       }
       textAreaRef.current;
     }, 0);
+
   };
 
   const fetchWithTimeout = (url, options, timeout = 3000) => {
@@ -90,9 +89,18 @@ const Editor = () => {
     }
   
     let correctedServer = newServer;
-    // 检查URL是否以HTTP/HTTPS开头并且以正斜杠结尾
-    if (new RegExp(urlPattern).test(newServer) && newServer.endsWith('/')) {
-      correctedServer = newServer.slice(0, -1); // 移除末尾的正斜杠
+    // 检查URL是否以HTTP/HTTPS开头
+    if (new RegExp(urlPattern).test(newServer)) {
+      // 如果不是以正斜杠结尾，则添加正斜杠
+      if (!newServer.endsWith('/')) {
+        correctedServer += '/';
+      }
+    } else {
+      // 如果是IP地址，添加http前缀，并确保以正斜杠结尾
+      correctedServer = 'http://' + newServer;
+      if (!newServer.endsWith('/')) {
+        correctedServer += '/';
+      }
     }
   
     setIsAddressValid(true);
@@ -126,6 +134,7 @@ const Editor = () => {
     fileInputRef.current.click();
   };
 
+
   useEffect(() => {
     // 当上传队列改变时，启动上传过程
     if (uploadQueue.length > 0) {
@@ -144,7 +153,7 @@ const Editor = () => {
     formData.append("file", uploadQueue[0]);
 
     fetchWithTimeout(
-      articleType + "/upload",
+      articleType + "upload",
       {
         method: "POST",
         body: formData
@@ -170,7 +179,7 @@ const Editor = () => {
 
           const filename = data.substring("上传成功：".length);
           if (/\.(jpg|jpeg|png|gif)$/i.test(filename)) {
-            const markdownImageString = `![photo](${articleType}/share/${filename})`;
+            const markdownImageString = `![photo](${articleType}share/${filename})`;
             handleInsertClick("\n\n"+ markdownImageString );
           }
         }
@@ -260,9 +269,12 @@ const Editor = () => {
   return (
     <>
       {" "}
-      <CouldDrag /> <CloseButton />
+      <CouldDrag />
+      <CloseButton />
       <MaximizeButton />
       <MinimizeButton />
+      <Shortcut handleInsertClick={handleInsertClick} />
+
       <Box
         sx={{
           display: "flex",
@@ -534,7 +546,7 @@ const Editor = () => {
             <h1>请检查服务器地址格式</h1>
             地址应以"http://"或"https://"开头,或是一个有效的IPv4/IPv6地址。
             <br />
-            其格式应该如https://upload.maoniang.cn:1145 请勿在末尾添加正斜杠
+            其格式应该如https://upload.maoniang.cn:1145/
           </DialogContent>
         </DialogContent>
         <DialogActions></DialogActions>
