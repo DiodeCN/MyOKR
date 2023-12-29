@@ -14,7 +14,6 @@ import {
     Select,
     TextField,
     Toolbar,
-    Typography,
     InputLabel,
     Dialog,
     DialogActions,
@@ -28,7 +27,6 @@ import Grid from "@mui/material/Grid";
 
 import ReactMarkdown from "react-markdown";
 import gfm from "remark-gfm";
-import {red} from "@mui/material/colors";
 
 const insertTextAtEnd = (textArea, newText) => {
     const {value} = textArea;
@@ -42,6 +40,7 @@ const Editor = () => {
     const [isAddingNew, setIsAddingNew] = useState(false);
     const [newServer, setNewServer] = useState("");
     const [isAddressValid, setIsAddressValid] = useState(true);
+    
 
     const handleInsertClick = (insertText) => {
         // Assuming markdownText is the current state of the text area
@@ -63,10 +62,8 @@ const Editor = () => {
                     .current
                     .focus();
             }
-            const newCursorPos = selectionStart + insertText.length;
             textAreaRef
                 .current
-                .setSelectionRange(newCursorPos, newCursorPos);
         }, 0);
     };
 
@@ -86,25 +83,27 @@ const Editor = () => {
     });
 
     const handleConfirmNewServer = () => {
-        const isValidAddress = /^(http:\/\/|https:\/\/|(\d{1,3}\.){3}\d{1,3})/.test(
-            newServer
-        );
+        const ipv4Pattern = '(\\d{1,3}\\.){3}\\d{1,3}';
+        const ipv6Pattern = '([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}';
+        const isValidAddress = new RegExp(
+            '^(http:\\/\\/|https:\\/\\/|' + ipv4Pattern + '|' + ipv6Pattern + ')'
+        ).test(newServer);
+    
         if (!isValidAddress) {
             setIsAddressValid(false); // 如果地址格式不正确，设置状态为 false
             return; // 不继续执行后续的添加服务器逻辑
         }
         setIsAddressValid(true); // 如果地址格式正确，继续执行添加服务器的逻辑
-
-        const updatedServers = [
-            ...servers,
-            newServer
-        ];
+    
+        // 其余代码保持不变
+        const updatedServers = [...servers, newServer];
         setServers(updatedServers);
         localStorage.setItem("servers", JSON.stringify(updatedServers));
         setArticleType(newServer);
         setIsAddingNew(false);
         setNewServer("");
     };
+    
 
     const handleFileDrop = (event) => {
         console.log("文件拖拽");
@@ -118,6 +117,20 @@ const Editor = () => {
             uploadFileToServer(file); // 新增的上传函数
         }
     };
+
+    const fileInputRef = useRef(null);
+
+const handleFileSelect = (event) => {
+    const files = event.target.files;
+    if (files.length > 0) {
+        uploadFileToServer(files[0]);
+    }
+}
+
+const handleButtonClick = () => {
+    fileInputRef.current.click();
+}
+
 
     const uploadFileToServer = (file) => {
         const formData = new FormData();
@@ -264,7 +277,6 @@ const Editor = () => {
                                 flexGrow: 1
                             }}>
                             <TextField
-                                maxWidth="maxWidth"
                                 variant="standard"
                                 flex="flex"
                                 style={{
@@ -283,9 +295,6 @@ const Editor = () => {
                         {/* 容器用于按钮 */}
                         <div>
                             <Button onClick={() => handleInsertClick("# 标题\n\n")}>H1</Button>
-                            <Button onClick={() => handleInsertClick("## 标题\n\n")}>H2</Button>
-                            <Button onClick={() => handleInsertClick("### 标题\n\n")}>H3</Button>
-                            <Button onClick={() => handleInsertClick("#### 标题\n\n")}>H4</Button>
                             <Button onClick={() => handleInsertClick("**芝士粗体**")}>粗体</Button>
                             <Button onClick={() => handleInsertClick("_芝士斜体_")}>斜体</Button>
                             <Button onClick={() => handleInsertClick("~~芝士删除线~~")}>删除线</Button>
@@ -294,8 +303,21 @@ const Editor = () => {
                             <Button
                                 onClick={handleCopyToClipboard}
                                 sx={{
-                                    color: 'orange'
+                                    color: 'white'
                                 }}>复制文本</Button>
+<>
+    <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileSelect}
+        style={{ display: "none" }}
+    />
+    <Button sx={{
+                                    color: 'white'
+                                }} onClick={handleButtonClick}>选择文件</Button>
+</>
+
+
                         </div>
                     </Toolbar>
                 </AppBar>
@@ -312,8 +334,7 @@ const Editor = () => {
                     }}>
                     <TextField
                         spellCheck={false}
-                        fullWidth="fullWidth"
-                        multiline="multiline"
+                        multiline
                         ref={textAreaRef}
                         variant="filled"
                         value={markdownText}
@@ -372,7 +393,7 @@ const Editor = () => {
 
             <Grid item="item" xs={6}>
                 <FormControl
-                    fullWidth="fullWidth"
+                    fullWidth
                     sx={{
                         marginTop: "1rem"
                     }}>
@@ -427,7 +448,7 @@ const Editor = () => {
             </Grid>
 
             <Button
-                fullWidth="fullWidth"
+                fullWidth
                 variant="contained"
                 color="primary"
                 onClick={handleOpen}
@@ -438,7 +459,7 @@ const Editor = () => {
             </Button>
 
             <Button
-                fullWidth="fullWidth"
+                fullWidth
                 variant="contained"
                 color="primary"
                 onClick={handleSubmit}
@@ -450,7 +471,7 @@ const Editor = () => {
         </Box>
 
         <Dialog open={!isAddressValid} onClose={() => setIsAddressValid(true)}>
-            <DialogTitle>{"无效的服务器地址"}</DialogTitle>
+            <DialogTitle sx={{width:"50vw"}}              >{"无效的服务器地址"}</DialogTitle>
             <IconButton
                 id="view"
                 edge="end"
@@ -470,13 +491,15 @@ const Editor = () => {
             <DialogContent>
                 <DialogContent>
                     <h2>请检查服务器地址格式</h2>
-                    地址应以 "http://" 或 "https://" 开头 ,或者是一个有效的 IPv4 地址。
+                    地址应以 "http://" 或 "https://" 开头 ,或者是一个有效的 IPv4/IPv6 地址。
+                    <br />
+                    其格式应该如https://upload.maoniang.cn 请勿在末尾添加正斜杠
                 </DialogContent>
             </DialogContent>
             <DialogActions></DialogActions>
         </Dialog>
 
-        <Dialog onClose={handleClose} open={open} maxWidth="md" fullWidth="fullWidth">
+        <Dialog onClose={handleClose} open={open} maxWidth="md" fullWidth>
             <DialogTitle>
                 关于
                 <IconButton
