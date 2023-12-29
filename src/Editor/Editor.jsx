@@ -40,27 +40,26 @@ const Editor = () => {
   const [uploadQueue, setUploadQueue] = useState([]);
 
   const handleInsertClick = (insertText) => {
-    // Assuming markdownText is the current state of the text area
     const currentText = markdownText;
-
-    // Assuming textAreaRef is a ref to your text area
     const selectionStart = textAreaRef.current.selectionStart;
-
-    // Insert the new text at the cursor position
-    const newText = currentText.substring(0, selectionStart) + insertText;
-
-    // Update the markdown text
-    setMarkdownText(newText);
-
-    // Update the cursor position after state update
-    setTimeout(() => {
+  
+    // 插入新文本
+    const newText = currentText.substring(0, selectionStart) + insertText; // + currentText.substring(selectionStart);
+  
+    console.log(currentText.substring(0, selectionStart));
+    console.log(currentText.substring(selectionStart));
+    // 更新 Markdown 文本并在更新后设置光标位置
+    setMarkdownText(newText, () => {
       if (textAreaRef.current) {
+        // 计算新的光标位置
+        const newCursorPosition = selectionStart + insertText.length;
+        textAreaRef.current.selectionStart = newCursorPosition;
+        textAreaRef.current.selectionEnd = newCursorPosition;
         textAreaRef.current.focus();
       }
-      textAreaRef.current;
-    }, 0);
-
+    });
   };
+  
 
   const fetchWithTimeout = (url, options, timeout = 3000) => {
     return new Promise((resolve, reject) => {
@@ -210,6 +209,8 @@ const Editor = () => {
 
   const [markdownText, setMarkdownText] = useState("");
   const previewRef = useRef(null);
+  const textAreaRef = useRef(null);
+  const markdownRef = useRef(null);
 
   useEffect(() => {
     if (previewRef.current) {
@@ -217,9 +218,7 @@ const Editor = () => {
     }
   }, [markdownText]);
 
-  const textAreaRef = useRef(null);
 
-  const markdownRef = useRef(null);
 
   useEffect(() => {
     if (markdownRef.current) {
