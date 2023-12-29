@@ -9,7 +9,6 @@ import {
     AppBar,
     Box,
     Button,
-    CardContent,
     FormControl,
     MenuItem,
     Select,
@@ -29,6 +28,7 @@ import Grid from "@mui/material/Grid";
 
 import ReactMarkdown from "react-markdown";
 import gfm from "remark-gfm";
+import {red} from "@mui/material/colors";
 
 const insertTextAtEnd = (textArea, newText) => {
     const {value} = textArea;
@@ -258,43 +258,48 @@ const Editor = () => {
                         boxShadow: "none"
                     }}>
                     <Toolbar>
-                        <Typography
-                            variant="h5"
-                            sx={{
+                        {/* 容器用于输入框 */}
+                        <div
+                            style={{
                                 flexGrow: 1
                             }}>
-                            文本编辑
-                        </Typography>
-                        <Button onClick={() => handleInsertClick("# 芝士H1 标题\n\n")}>
-                            H1
-                        </Button>
-                        <Button onClick={() => handleInsertClick("## 芝士H2 标题\n\n")}>
-                            H2
-                        </Button>
-                        <Button onClick={() => handleInsertClick("### 芝士H3 标题\n\n")}>
-                            H3
-                        </Button>
-                        <Button onClick={() => handleInsertClick("**芝士粗体**")}>
-                            粗体
-                        </Button>
-                        <Button onClick={() => handleInsertClick("_芝士斜体_")}>
-                            斜体
-                        </Button>
-                        <Button onClick={() => handleInsertClick("~~芝士删除线~~")}>
-                            删除线
-                        </Button>
-                        <Button onClick={() => handleInsertClick("\n\n- 芝士列表项")}>
-                            列表项
-                        </Button>
-                        <Button onClick={() => handleInsertClick("\n\n1. 芝士有序列表项")}>
-                            有序列表项
-                        </Button>
-                        <Button onClick={handleCopyToClipboard}>
-                            复制文本
-                        </Button>
+                            <TextField
+                                maxWidth="maxWidth"
+                                variant="standard"
+                                flex="flex"
+                                style={{
+                                    maxHeight: "3vh",
+                                    maxWidth: "40vh"
+                                }}
+                                InputProps={{
+                                    style: {
+                                        height: "5vh",
+                                        width: "20vh",
+                                        maxWidth: "60vh"
+                                    }
+                                }}/>
+                        </div>
 
+                        {/* 容器用于按钮 */}
+                        <div>
+                            <Button onClick={() => handleInsertClick("# 标题\n\n")}>H1</Button>
+                            <Button onClick={() => handleInsertClick("## 标题\n\n")}>H2</Button>
+                            <Button onClick={() => handleInsertClick("### 标题\n\n")}>H3</Button>
+                            <Button onClick={() => handleInsertClick("#### 标题\n\n")}>H4</Button>
+                            <Button onClick={() => handleInsertClick("**芝士粗体**")}>粗体</Button>
+                            <Button onClick={() => handleInsertClick("_芝士斜体_")}>斜体</Button>
+                            <Button onClick={() => handleInsertClick("~~芝士删除线~~")}>删除线</Button>
+                            <Button onClick={() => handleInsertClick("\n\n- 芝士列表项")}>列表项</Button>
+                            <Button onClick={() => handleInsertClick("\n\n1. 芝士有序列表项")}>有序列表项</Button>
+                            <Button
+                                onClick={handleCopyToClipboard}
+                                sx={{
+                                    color: 'orange'
+                                }}>复制文本</Button>
+                        </div>
                     </Toolbar>
                 </AppBar>
+
             </Grid>
 
             <Grid container="container" spacing={2}>
