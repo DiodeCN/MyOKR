@@ -40,18 +40,16 @@ const Editor = () => {
   const [uploadQueue, setUploadQueue] = useState([]);
 
   const handleInsertClick = (insertText) => {
-    const currentText = markdownText;
-    const selectionStart = textAreaRef.current.selectionStart;
+    const selectionStart = textAreaRef.current ? textAreaRef.current.selectionStart : 0;
   
-    // 插入新文本
-    const newText = currentText.substring(0, selectionStart) + insertText; // + currentText.substring(selectionStart);
+    // 使用函数式更新以确保获取到最新的markdownText状态
+    setMarkdownText(currentText => {
+      const newText = currentText.substring(0, selectionStart) + insertText + currentText.substring(selectionStart);
   
-    console.log(currentText.substring(0, selectionStart));
-    console.log(currentText.substring(selectionStart));
-    // 更新 Markdown 文本并在更新后设置光标位置
-    setMarkdownText(newText, () => {
+      // 返回更新后的文本
+      return newText;
+    }, () => {
       if (textAreaRef.current) {
-        // 计算新的光标位置
         const newCursorPosition = selectionStart + insertText.length;
         textAreaRef.current.selectionStart = newCursorPosition;
         textAreaRef.current.selectionEnd = newCursorPosition;
@@ -60,8 +58,9 @@ const Editor = () => {
     });
   };
   
+  
 
-  const fetchWithTimeout = (url, options, timeout = 3000) => {
+  const fetchWithTimeout = (url, options, timeout = 30000) => {
     return new Promise((resolve, reject) => {
       fetch(url, options).then(resolve, reject);
       setTimeout(() => reject(new Error("服务器超时请检查配置")), timeout);
@@ -145,50 +144,47 @@ const Editor = () => {
     setUploadQueue((prevQueue) => [...prevQueue, ...files]);
   };
 
-  const uploadFileToServer = () => {
+  const uploadFileToServer = async () => {
+    // 确保只有在队列中还有文件时才执行
     if (uploadQueue.length === 0) return;
-
-    const formData = new FormData();
-    formData.append("file", uploadQueue[0]);
-
-    fetchWithTimeout(
-      articleType + "upload",
-      {
-        method: "POST",
-        body: formData
-      },
-      3000
-    ) // 3000 milliseconds timeout
-      .then((response) => {
-        if (response.ok) {
-          return response.text();
-        } else {
-          throw new Error("上传失败");
-        }
-      })
-      .then((data) => {
-        console.log(data);
+  
+    const file = uploadQueue[0]; // 获取队列中的第一个文件
+  
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+  
+      const response = await fetchWithTimeout(
+        `${articleType}upload`,
+        {
+          method: "POST",
+          body: formData,
+        },
+        3000 // 3秒超时
+      );
+  
+      if (response.ok) {
+        const data = await response.text();
         if (data.startsWith("上传成功：")) {
-          uploadQueue.splice(0, 1);
-          setUploadQueue([...uploadQueue]); // 使用展开运算符更新状态
-
-          if (uploadQueue.length > 0) {
-            uploadFileToServer(); // 只有队列不为空时再次调用
-          }
-
           const filename = data.substring("上传成功：".length);
-          if (/\.(jpg|jpeg|png|gif)$/i.test(filename)) {
-            const markdownImageString = `![photo](${articleType}share/${filename})`;
-            handleInsertClick("\n\n"+ markdownImageString );
-          }
+          const markdownImageString = `![photo](${articleType}share/${filename})`;
+  
+          // 更新Markdown文本
+          setMarkdownText((currentText) => `${currentText}\n\n${markdownImageString}`);
         }
-      })
-      .catch((error) => {
-        console.error("上传错误:", error);
-        setErrorMessage(error.message);
-        setOpenErrorSnackbar(true);
-      });
+      } else {
+        throw new Error("上传失败");
+      }
+    } catch (error) {
+      console.error("上传错误:", error);
+      setErrorMessage(error.message);
+      setOpenErrorSnackbar(true);
+    } finally {
+      // 无论上传成功还是失败，都从队列中移除当前文件，并尝试上传下一个文件
+      setUploadQueue((currentQueue) => currentQueue.slice(1));
+    }
   };
+  
 
   const handleArticleTypeChange = (event) => {
     if (event.target.value === "新增") {
