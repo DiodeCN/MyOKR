@@ -58,6 +58,18 @@ const Editor = () => {
     });
   };
   
+  useEffect(() => {
+    // 在组件加载时尝试从localStorage中获取“currentServer”
+    const currentServer = localStorage.getItem("currentServer");
+    if (currentServer) {
+      setArticleType(currentServer); // 设置为当前服务器地址
+    }
+    // 同时加载保存的服务器列表
+    const savedServers = localStorage.getItem("servers");
+    if (savedServers) {
+      setServers(JSON.parse(savedServers));
+    }
+  }, []);
   
 
   const fetchWithTimeout = (url, options, timeout = 30000) => {
@@ -105,6 +117,7 @@ const Editor = () => {
     const updatedServers = [...servers, correctedServer];
     setServers(updatedServers);
     localStorage.setItem("servers", JSON.stringify(updatedServers));
+    localStorage.setItem("currentServer", correctedServer);
     setArticleType(correctedServer);
     setIsAddingNew(false);
     setNewServer("");
@@ -145,11 +158,39 @@ const Editor = () => {
   };
 
   const uploadFileToServer = async () => {
-    // 确保只有在队列中还有文件时才执行
     if (uploadQueue.length === 0) return;
+
+    if (articleType == ""){
+      setErrorMessage("笨蛋，你还没有选择上传服务器!");
+      setOpenErrorSnackbar(true);
+      return;
+    }
+
+    // 先检查服务器是否可达
+    try {
+      const serverCheckUrl = `${articleType}health-check`; // 假设服务器有一个轻量级的检查接口
+      const healthCheckResponse = await fetchWithTimeout(serverCheckUrl, {
+        method: 'GET', // 或者GET，取决于服务器配置
+      }, 500); // 设置较短的超时时间
   
+      if (healthCheckResponse.ok != true) {
+        throw new Error("服务器不可达，请检查服务器状态或网络连接");
+      }
+    } catch (error) {
+      console.error("服务器检查失败:", error);
+      setErrorMessage("服务器不可达：" + error.message);
+      setOpenErrorSnackbar(true);
+      return; // 直接返回，不执行后续上传操作
+    }
+  
+    // 如果服务器检查通过，则执行文件上传逻辑
     const file = uploadQueue[0]; // 获取队列中的第一个文件
+    const loadingImagePlaceholder = `![loading](loading.jpg)\n\n`;
   
+    
+    // 在开始上传前，先插入loading图片的占位符
+    setMarkdownText((currentText) => `${currentText}${loadingImagePlaceholder}`);
+    
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -160,39 +201,55 @@ const Editor = () => {
           method: "POST",
           body: formData,
         },
-        3000 // 3秒超时
+        20000 // 20秒超时
       );
   
       if (response.ok) {
         const data = await response.text();
         if (data.startsWith("上传成功：")) {
           const filename = data.substring("上传成功：".length);
-          const markdownImageString = `![photo](${articleType}share/${filename})`;
+          const uploadedImageLink = `![photo](${articleType}share/${filename})\n\n`; // 在图片链接末尾添加换行符
   
-          // 更新Markdown文本
-          setMarkdownText((currentText) => `${currentText}\n\n${markdownImageString}`);
+          // 替换Markdown中最后一个loading图片的占位符为上传的图片
+          setMarkdownText((currentText) => {
+            return currentText.replace(loadingImagePlaceholder, uploadedImageLink);
+          });
+        } else {
+          throw new Error("上传未成功，服务器未返回成功消息");
         }
       } else {
-        throw new Error("上传失败");
+        throw new Error("上传失败，服务器响应异常");
       }
     } catch (error) {
       console.error("上传错误:", error);
       setErrorMessage(error.message);
       setOpenErrorSnackbar(true);
+  
+      // 上传失败时替换loading图片的占位符为failed.jpg
+      const failedImageLink = `![failed](failed.jpg)\n\n`; // 在图片链接末尾添加换行符
+      setMarkdownText((currentText) => {
+        return currentText.replace(loadingImagePlaceholder, failedImageLink);
+      });
     } finally {
       // 无论上传成功还是失败，都从队列中移除当前文件，并尝试上传下一个文件
       setUploadQueue((currentQueue) => currentQueue.slice(1));
+      // 如果队列为空，所有文件已上传完毕
+      if (uploadQueue.length === 1) {
+        // 可在此处处理所有文件上传完成后的逻辑
+      }
     }
   };
   
-
   const handleArticleTypeChange = (event) => {
-    if (event.target.value === "新增") {
+    const newArticleType = event.target.value;
+    if (newArticleType === "新增") {
       setIsAddingNew(true);
     } else {
-      setArticleType(event.target.value);
+      setArticleType(newArticleType);
+      localStorage.setItem("currentServer", newArticleType);
     }
   };
+  
 
   const [articleType, setArticleType] = useState("");
   const [open, setOpen] = useState(false);
