@@ -86,7 +86,7 @@ const Editor = () => {
     }
   }, []);
 
-  const fetchWithTimeout = (url, options, timeout = 30000) => {
+  const fetchWithTimeout = (url, options, timeout = 60000) => {
     return new Promise((resolve, reject) => {
       fetch(url, options).then(resolve, reject);
       setTimeout(() => reject(new Error("服务器超时请检查配置")), timeout);
@@ -218,7 +218,7 @@ const Editor = () => {
           method: "POST",
           body: formData,
         },
-        20000 // 20秒超时
+        120000 // 120秒超时
       );
 
       if (response.ok) {
@@ -250,6 +250,9 @@ const Editor = () => {
       setMarkdownText((currentText) => {
         return currentText.replace(loadingImagePlaceholder, failedImageLink);
       });
+
+      setUploadQueue([]); // 添加此行代码来清空队列
+
     } finally {
       // 无论上传成功还是失败，都从队列中移除当前文件，并尝试上传下一个文件
       setUploadQueue((currentQueue) => currentQueue.slice(1));
