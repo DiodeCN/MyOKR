@@ -3,8 +3,7 @@ import MaximizeButton from "../WinLayout/maximizeApp";
 import CouldDrag from "../WinLayout/couldDrag"; // Import the couldDrag component
 import MinimizeButton from "../WinLayout/minimizeApp";
 import rehypeRaw from "rehype-raw";
-import Shortcut from './ShortCut';
-
+import Shortcut from "./ShortCut";
 
 import React, { useState, useRef, useEffect } from "react";
 import {
@@ -22,14 +21,13 @@ import {
   DialogContent,
   DialogTitle,
   Snackbar,
-  IconButton
+  IconButton,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import Grid from "@mui/material/Grid";
 
 import ReactMarkdown from "react-markdown";
 import gfm from "remark-gfm";
-
 
 const Editor = () => {
   const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
@@ -38,26 +36,32 @@ const Editor = () => {
   const [newServer, setNewServer] = useState("");
   const [isAddressValid, setIsAddressValid] = useState(true);
   const [uploadQueue, setUploadQueue] = useState([]);
+  const [docTitle, setDocTitle] = useState(""); // 新增状态用于存储文档标题
 
   const handleInsertClick = (insertText) => {
-    const selectionStart = textAreaRef.current ? textAreaRef.current.selectionStart : 0;
-  
+    const selectionStart = textAreaRef.current
+      ? textAreaRef.current.selectionStart
+      : 0;
+
     // 使用函数式更新以确保获取到最新的markdownText状态
-    setMarkdownText(currentText => {
-      const newText = currentText.substring(0, selectionStart) + insertText + currentText.substring(selectionStart);
-  
-      // 返回更新后的文本
-      return newText;
-    }, () => {
-      if (textAreaRef.current) {
-        const newCursorPosition = selectionStart + insertText.length;
-        textAreaRef.current.selectionStart = newCursorPosition;
-        textAreaRef.current.selectionEnd = newCursorPosition;
-        textAreaRef.current.focus();
+    setMarkdownText(
+      (currentText) => {
+        const newText = currentText.substring(0, selectionStart) + insertText;
+
+        // 返回更新后的文本
+        return newText;
+      },
+      () => {
+        if (textAreaRef.current) {
+          const newCursorPosition = selectionStart + insertText.length;
+          textAreaRef.current.selectionStart = newCursorPosition;
+          textAreaRef.current.selectionEnd = newCursorPosition;
+          textAreaRef.current.focus();
+        }
       }
-    });
+    );
   };
-  
+
   useEffect(() => {
     // 在组件加载时尝试从localStorage中获取“currentServer”
     const currentServer = localStorage.getItem("currentServer");
@@ -70,7 +74,17 @@ const Editor = () => {
       setServers(JSON.parse(savedServers));
     }
   }, []);
-  
+
+  useEffect(() => {
+    const totalArticles = localStorage.getItem("totalArticles");
+    if (totalArticles === null) {
+      localStorage.setItem("totalArticles", 1); // 如果不存在，则初始化为1
+      setDocTitle(`未命名文档（1）`); // 设置文档标题
+    } else {
+      const total = parseInt(totalArticles, 10); // 读取并转换为数字
+      setDocTitle(`未命名文档（${total}）`); // 更新文档标题
+    }
+  }, []);
 
   const fetchWithTimeout = (url, options, timeout = 30000) => {
     return new Promise((resolve, reject) => {
@@ -92,27 +106,27 @@ const Editor = () => {
     const isValidAddress = new RegExp(
       urlPattern + "|" + ipv4Pattern + "|" + ipv6Pattern
     ).test(newServer);
-  
+
     if (!isValidAddress) {
       setIsAddressValid(false);
       return;
     }
-  
+
     let correctedServer = newServer;
     // 检查URL是否以HTTP/HTTPS开头
     if (new RegExp(urlPattern).test(newServer)) {
       // 如果不是以正斜杠结尾，则添加正斜杠
-      if (!newServer.endsWith('/')) {
-        correctedServer += '/';
+      if (!newServer.endsWith("/")) {
+        correctedServer += "/";
       }
     } else {
       // 如果是IP地址，添加http前缀，并确保以正斜杠结尾
-      correctedServer = 'http://' + newServer;
-      if (!newServer.endsWith('/')) {
-        correctedServer += '/';
+      correctedServer = "http://" + newServer;
+      if (!newServer.endsWith("/")) {
+        correctedServer += "/";
       }
     }
-  
+
     setIsAddressValid(true);
     const updatedServers = [...servers, correctedServer];
     setServers(updatedServers);
@@ -122,7 +136,6 @@ const Editor = () => {
     setIsAddingNew(false);
     setNewServer("");
   };
-  
 
   const handleFileDrop = (event) => {
     console.log("文件拖拽");
@@ -145,7 +158,6 @@ const Editor = () => {
     fileInputRef.current.click();
   };
 
-
   useEffect(() => {
     // 当上传队列改变时，启动上传过程
     if (uploadQueue.length > 0) {
@@ -160,7 +172,7 @@ const Editor = () => {
   const uploadFileToServer = async () => {
     if (uploadQueue.length === 0) return;
 
-    if (articleType == ""){
+    if (articleType == "") {
       setErrorMessage("笨蛋，你还没有选择上传服务器!");
       setOpenErrorSnackbar(true);
       return;
@@ -169,10 +181,14 @@ const Editor = () => {
     // 先检查服务器是否可达
     try {
       const serverCheckUrl = `${articleType}health-check`; // 假设服务器有一个轻量级的检查接口
-      const healthCheckResponse = await fetchWithTimeout(serverCheckUrl, {
-        method: 'GET', // 或者GET，取决于服务器配置
-      }, 500); // 设置较短的超时时间
-  
+      const healthCheckResponse = await fetchWithTimeout(
+        serverCheckUrl,
+        {
+          method: "GET", // 或者GET，取决于服务器配置
+        },
+        500
+      ); // 设置较短的超时时间
+
       if (healthCheckResponse.ok != true) {
         throw new Error("服务器不可达，请检查服务器状态或网络连接");
       }
@@ -182,19 +198,20 @@ const Editor = () => {
       setOpenErrorSnackbar(true);
       return; // 直接返回，不执行后续上传操作
     }
-  
+
     // 如果服务器检查通过，则执行文件上传逻辑
     const file = uploadQueue[0]; // 获取队列中的第一个文件
     const loadingImagePlaceholder = `![loading](loading.jpg)\n\n`;
-  
-    
+
     // 在开始上传前，先插入loading图片的占位符
-    setMarkdownText((currentText) => `${currentText}${loadingImagePlaceholder}`);
-    
+    setMarkdownText(
+      (currentText) => `${currentText}${loadingImagePlaceholder}`
+    );
+
     try {
       const formData = new FormData();
       formData.append("file", file);
-  
+
       const response = await fetchWithTimeout(
         `${articleType}upload`,
         {
@@ -203,16 +220,19 @@ const Editor = () => {
         },
         20000 // 20秒超时
       );
-  
+
       if (response.ok) {
         const data = await response.text();
         if (data.startsWith("上传成功：")) {
           const filename = data.substring("上传成功：".length);
           const uploadedImageLink = `![photo](${articleType}share/${filename})\n\n`; // 在图片链接末尾添加换行符
-  
+
           // 替换Markdown中最后一个loading图片的占位符为上传的图片
           setMarkdownText((currentText) => {
-            return currentText.replace(loadingImagePlaceholder, uploadedImageLink);
+            return currentText.replace(
+              loadingImagePlaceholder,
+              uploadedImageLink
+            );
           });
         } else {
           throw new Error("上传未成功，服务器未返回成功消息");
@@ -224,7 +244,7 @@ const Editor = () => {
       console.error("上传错误:", error);
       setErrorMessage(error.message);
       setOpenErrorSnackbar(true);
-  
+
       // 上传失败时替换loading图片的占位符为failed.jpg
       const failedImageLink = `![failed](failed.jpg)\n\n`; // 在图片链接末尾添加换行符
       setMarkdownText((currentText) => {
@@ -239,7 +259,7 @@ const Editor = () => {
       }
     }
   };
-  
+
   const handleArticleTypeChange = (event) => {
     const newArticleType = event.target.value;
     if (newArticleType === "新增") {
@@ -249,7 +269,6 @@ const Editor = () => {
       localStorage.setItem("currentServer", newArticleType);
     }
   };
-  
 
   const [articleType, setArticleType] = useState("");
   const [open, setOpen] = useState(false);
@@ -270,8 +289,6 @@ const Editor = () => {
       previewRef.current.scrollTop = previewRef.current.scrollHeight;
     }
   }, [markdownText]);
-
-
 
   useEffect(() => {
     if (markdownRef.current) {
@@ -326,108 +343,91 @@ const Editor = () => {
       <MaximizeButton />
       <MinimizeButton />
       <Shortcut handleInsertClick={handleInsertClick} />
-
       <Box
         sx={{
           display: "flex",
           flexDirection: "column",
           gap: "1rem",
           width: "100%",
-          margin: "0 auto"
+          margin: "0 auto",
         }}
       >
-        <Grid
-          item="item"
-          xs={12}
-          sx={{
-            flexGrow: 1
+        <AppBar
+          position="sticky"
+          color="transparent"
+          elevation={0}
+          style={{
+            borderRadius: 8,
+            backgroundColor: "transparent",
+            boxShadow: "none",
           }}
         >
-          <AppBar
-            position="sticky"
-            color="transparent"
-            elevation={0}
-            style={{
-              borderRadius: 8,
-              backgroundColor: "transparent",
-              boxShadow: "none"
-            }}
-          >
-            <Toolbar>
-              {/* 容器用于输入框 */}
-              <div
-                style={{
-                  flexGrow: 1
+          <Toolbar style={{ display: "flex", justifyContent: "space-between" }}>
+            {/* 容器用于输入框 */}
+            <div>
+              <TextField
+                variant="standard"
+                value={docTitle} // 使用状态更新输入框的值
+                flex="flex"
+                InputProps={{
+                  style: {
+                    height: "3vh",
+                    width: "100%",
+                  },
+                }}
+              />
+            </div>
+
+            {/* 容器用于按钮 */}
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <Button onClick={() => handleInsertClick("# 标题\n\n")}>
+                H1
+              </Button>
+              <Button onClick={() => handleInsertClick("**芝士粗体**")}>
+                粗体
+              </Button>
+              <Button onClick={() => handleInsertClick("_芝士斜体_")}>
+                斜体
+              </Button>
+              <Button onClick={() => handleInsertClick("~~芝士删除线~~")}>
+                删除线
+              </Button>
+              <Button onClick={() => handleInsertClick("\n\n- 芝士列表项")}>
+                列表项
+              </Button>
+              <Button
+                onClick={() => handleInsertClick("\n\n1. 芝士有序列表项")}
+              >
+                有序列表项
+              </Button>
+              <Button
+                onClick={handleCopyToClipboard}
+                sx={{
+                  color: "white",
                 }}
               >
-                <TextField
-                  variant="standard"
-                  flex="flex"
-                  style={{
-                    maxHeight: "3vh",
-                    maxWidth: "40vh"
-                  }}
-                  InputProps={{
-                    style: {
-                      height: "5vh",
-                      width: "20vh",
-                      maxWidth: "60vh"
-                    }
-                  }}
+                复制文本
+              </Button>
+              <>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileSelect}
+                  multiple
+                  style={{ display: "none" }}
                 />
-              </div>
-
-              {/* 容器用于按钮 */}
-              <div>
-                <Button onClick={() => handleInsertClick("# 标题\n\n")}>
-                  H1
-                </Button>
-                <Button onClick={() => handleInsertClick("**芝士粗体**")}>
-                  粗体
-                </Button>
-                <Button onClick={() => handleInsertClick("_芝士斜体_")}>
-                  斜体
-                </Button>
-                <Button onClick={() => handleInsertClick("~~芝士删除线~~")}>
-                  删除线
-                </Button>
-                <Button onClick={() => handleInsertClick("\n\n- 芝士列表项")}>
-                  列表项
-                </Button>
                 <Button
-                  onClick={() => handleInsertClick("\n\n1. 芝士有序列表项")}
-                >
-                  有序列表项
-                </Button>
-                <Button
-                  onClick={handleCopyToClipboard}
                   sx={{
-                    color: "white"
+                    color: "white",
                   }}
+                  onClick={handleButtonClick}
                 >
-                  复制文本
+                  选择文件
                 </Button>
-                <>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileSelect}
-                    multiple
-                    style={{ display: "none" }}
-                  />
-                  <Button
-                    sx={{
-                      color: "white"
-                    }}
-                    onClick={handleButtonClick}
-                  >
-                    选择文件
-                  </Button>
-                </>
-              </div>
-            </Toolbar>
-          </AppBar>
-        </Grid>
+              </>
+            </div>
+          </Toolbar>
+        </AppBar>
 
         <Grid container="container" spacing={2}>
           <Grid
@@ -435,7 +435,7 @@ const Editor = () => {
             xs={6}
             style={{
               maxHeight: "60vh",
-              display: "flex"
+              display: "flex",
             }}
           >
             <TextField
@@ -460,10 +460,10 @@ const Editor = () => {
                 border: "1px solid rgba(255,255,255,0.18)",
                 flexGrow: 100,
                 display: "flex",
-                flexDirection: "column"
+                flexDirection: "column",
               }}
               InputProps={{
-                disableUnderline: true
+                disableUnderline: true,
               }}
             />
           </Grid>
@@ -488,7 +488,7 @@ const Editor = () => {
                 flexGrow: 1, // Add this
                 display: "flex", // Add this
                 flexDirection: "column", // Add this
-                textAlign: "left" // Make content align left
+                textAlign: "left", // Make content align left
               }}
             >
               <ReactMarkdown
@@ -504,7 +504,7 @@ const Editor = () => {
           <FormControl
             fullWidth
             sx={{
-              marginTop: "1rem"
+              marginTop: "1rem",
             }}
           >
             <InputLabel id="article-type-label">上传服务器</InputLabel>
@@ -526,8 +526,8 @@ const Editor = () => {
                     backgroundColor: "#99CCFF", // 设置按钮颜色为红色
                     "&:hover": {
                       backgroundColor: "#f7a8b8", // 鼠标悬停时的颜色变化
-                      boxShadow: "none" // 确保悬停时不显示阴影
-                    }
+                      boxShadow: "none", // 确保悬停时不显示阴影
+                    },
                   }}
                   onClick={handleConfirmNewServer}
                 >
@@ -558,7 +558,7 @@ const Editor = () => {
           color="primary"
           onClick={handleOpen}
           sx={{
-            marginTop: "1rem"
+            marginTop: "1rem",
           }}
         >
           关于
@@ -570,10 +570,10 @@ const Editor = () => {
           color="primary"
           onClick={handleSubmit}
           sx={{
-            marginTop: "1rem"
+            marginTop: "1rem",
           }}
         >
-          发送
+          保存并发送
         </Button>
       </Box>
       <Dialog open={!isAddressValid} onClose={() => setIsAddressValid(true)}>
@@ -588,7 +588,7 @@ const Editor = () => {
             position: "absolute",
             right: "8px",
             top: "8px",
-            color: (theme) => theme.palette.grey[500]
+            color: (theme) => theme.palette.grey[500],
           }}
         >
           <CloseIcon />
@@ -616,7 +616,7 @@ const Editor = () => {
               position: "absolute",
               right: "8px",
               top: "8px",
-              color: (theme) => theme.palette.grey[500]
+              color: (theme) => theme.palette.grey[500],
             }}
           >
             <CloseIcon />
@@ -626,7 +626,7 @@ const Editor = () => {
           dividers="dividers"
           sx={{
             overflow: "hidden",
-            maxWidth: "100%"
+            maxWidth: "100%",
           }}
         >
           <ReactMarkdown remarkPlugins={[gfm]} children={mdDocument} />
@@ -639,19 +639,19 @@ const Editor = () => {
         onClose={handleCloseSnackbar}
         anchorOrigin={{
           vertical: "top",
-          horizontal: "right"
+          horizontal: "right",
         }}
         // Basic positioning
         sx={{
           top: {
-            sm: 70
-          } // Additional offset from the top for small and up screen sizes
+            sm: 70,
+          }, // Additional offset from the top for small and up screen sizes
         }}
         message="复制成功"
         ContentProps={{
           sx: {
-            backgroundColor: "green" // Red background color
-          }
+            backgroundColor: "green", // Red background color
+          },
         }}
         action={
           <React.Fragment>
@@ -674,18 +674,18 @@ const Editor = () => {
         message={errorMessage}
         anchorOrigin={{
           vertical: "top",
-          horizontal: "right"
+          horizontal: "right",
         }}
         // Basic positioning
         sx={{
           top: {
-            sm: 70
-          } // Additional offset from the top for small and up screen sizes
+            sm: 70,
+          }, // Additional offset from the top for small and up screen sizes
         }}
         ContentProps={{
           sx: {
-            backgroundColor: "red" // Red background color
-          }
+            backgroundColor: "red", // Red background color
+          },
         }}
         action={
           <React.Fragment>
