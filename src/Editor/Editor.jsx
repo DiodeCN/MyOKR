@@ -29,6 +29,9 @@ import Grid from "@mui/material/Grid";
 import ReactMarkdown from "react-markdown";
 import gfm from "remark-gfm";
 
+import { uploadFileToServer, uploadSingleFile } from './EditorServices';
+
+
 const Editor = () => {
   const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -86,18 +89,17 @@ const Editor = () => {
     }
   }, []);
 
-  const fetchWithTimeout = (url, options, timeout = 60000) => {
-    return new Promise((resolve, reject) => {
-      fetch(url, options).then(resolve, reject);
-      setTimeout(() => reject(new Error("服务器超时请检查配置")), timeout);
-    });
-  };
-
   const [servers, setServers] = useState(() => {
     // 从localStorage获取保存的服务器列表
     const saved = localStorage.getItem("servers");
     return saved ? JSON.parse(saved) : [];
   });
+
+  const handleCancelNewServer = () => {
+    setIsAddingNew(false);
+    setNewServer(""); // 可选：清空输入的服务器地址
+};
+
 
   const handleConfirmNewServer = () => {
     const ipv4Pattern = "(\\d{1,3}\\.){3}\\d{1,3}";
@@ -169,99 +171,6 @@ const Editor = () => {
     setUploadQueue((prevQueue) => [...prevQueue, ...files]);
   };
 
-  const uploadFileToServer = async () => {
-    if (uploadQueue.length === 0) return;
-
-    if (articleType == "") {
-      setErrorMessage("笨蛋，你还没有选择上传服务器!");
-      setOpenErrorSnackbar(true);
-      return;
-    }
-
-    // 先检查服务器是否可达
-    try {
-      const serverCheckUrl = `${articleType}health-check`; // 假设服务器有一个轻量级的检查接口
-      const healthCheckResponse = await fetchWithTimeout(
-        serverCheckUrl,
-        {
-          method: "GET", // 或者GET，取决于服务器配置
-        },
-        500
-      ); // 设置较短的超时时间
-
-      if (healthCheckResponse.ok != true) {
-        throw new Error("服务器不可达，请检查服务器状态或网络连接");
-      }
-    } catch (error) {
-      console.error("服务器检查失败:", error);
-      setErrorMessage("服务器不可达：" + error.message);
-      setOpenErrorSnackbar(true);
-      return; // 直接返回，不执行后续上传操作
-    }
-
-    // 如果服务器检查通过，则执行文件上传逻辑
-    const file = uploadQueue[0]; // 获取队列中的第一个文件
-    const loadingImagePlaceholder = `![loading](loading.jpg)\n\n`;
-
-    // 在开始上传前，先插入loading图片的占位符
-    setMarkdownText(
-      (currentText) => `${currentText}${loadingImagePlaceholder}`
-    );
-
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetchWithTimeout(
-        `${articleType}upload`,
-        {
-          method: "POST",
-          body: formData,
-        },
-        120000 // 120秒超时
-      );
-
-      if (response.ok) {
-        const data = await response.text();
-        if (data.startsWith("上传成功：")) {
-          const filename = data.substring("上传成功：".length);
-          const uploadedImageLink = `![photo](${articleType}share/${filename})\n\n`; // 在图片链接末尾添加换行符
-
-          // 替换Markdown中最后一个loading图片的占位符为上传的图片
-          setMarkdownText((currentText) => {
-            return currentText.replace(
-              loadingImagePlaceholder,
-              uploadedImageLink
-            );
-          });
-        } else {
-          throw new Error("上传未成功，服务器未返回成功消息");
-        }
-      } else {
-        throw new Error("上传失败，服务器响应异常");
-      }
-    } catch (error) {
-      console.error("上传错误:", error);
-      setErrorMessage(error.message);
-      setOpenErrorSnackbar(true);
-
-      // 上传失败时替换loading图片的占位符为failed.jpg
-      const failedImageLink = `![failed](failed.jpg)\n\n`; // 在图片链接末尾添加换行符
-      setMarkdownText((currentText) => {
-        return currentText.replace(loadingImagePlaceholder, failedImageLink);
-      });
-
-      setUploadQueue([]); // 添加此行代码来清空队列
-
-    } finally {
-      // 无论上传成功还是失败，都从队列中移除当前文件，并尝试上传下一个文件
-      setUploadQueue((currentQueue) => currentQueue.slice(1));
-      // 如果队列为空，所有文件已上传完毕
-      if (uploadQueue.length === 1) {
-        // 可在此处处理所有文件上传完成后的逻辑
-      }
-    }
-  };
 
   const handleArticleTypeChange = (event) => {
     const newArticleType = event.target.value;
@@ -285,19 +194,10 @@ const Editor = () => {
   const [markdownText, setMarkdownText] = useState("");
   const previewRef = useRef(null);
   const textAreaRef = useRef(null);
-  const markdownRef = useRef(null);
 
   useEffect(() => {
     if (previewRef.current) {
       previewRef.current.scrollTop = previewRef.current.scrollHeight;
-    }
-  }, [markdownText]);
-
-  useEffect(() => {
-    if (markdownRef.current) {
-      setMarkdownHeight(
-        `${markdownRef.current.getBoundingClientRect().height}px`
-      );
     }
   }, [markdownText]);
 
@@ -367,23 +267,24 @@ const Editor = () => {
         >
           <Toolbar style={{ display: "flex", justifyContent: "space-between" }}>
             {/* 容器用于输入框 */}
-            <div>
+            <div style={{ display: "flex", alignItems: "center"}}>
+
               <TextField
                 variant="standard"
                 value={docTitle} // 使用状态更新输入框的值
                 flex="flex"
                 InputProps={{
                   style: {
-                    height: "3vh",
                     width: "100%",
                   },
                 }}
               />
+            .MD
             </div>
+            <div style={{ display: "flex", alignItems: "center" }}>
 
             {/* 容器用于按钮 */}
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <Button onClick={() => handleInsertClick("# 标题\n\n")}>
+              <Button onClick={() => handleInsertClick("\n\n# 标题")}>
                 H1
               </Button>
               <Button onClick={() => handleInsertClick("**芝士粗体**")}>
@@ -441,34 +342,37 @@ const Editor = () => {
               display: "flex",
             }}
           >
-            <TextField
-              spellCheck={false}
-              multiline
-              ref={textAreaRef}
-              variant="filled"
-              value={markdownText}
-              onChange={(event) => setMarkdownText(event.target.value)}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={handleFileDrop}
-              style={{
-                maxHeight: "60vh",
-                minHeight: "60vh",
-                minWidth: "42vh",
-                maxWidth: "42vh",
-                overflow: "auto",
-                backgroundColor: "rgba(255,255,255,0.3)",
-                borderRadius: "10px",
-                boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
-                backdropFilter: "blur(4px)",
-                border: "1px solid rgba(255,255,255,0.18)",
-                flexGrow: 100,
-                display: "flex",
-                flexDirection: "column",
-              }}
-              InputProps={{
-                disableUnderline: true,
-              }}
-            />
+<TextField
+  spellCheck={false}
+  multiline
+  ref={textAreaRef}
+  variant="standard"
+  value={markdownText}
+  onChange={(event) => setMarkdownText(event.target.value)}
+  onDragOver={(e) => e.preventDefault()}
+  onDrop={handleFileDrop}
+  style={{
+    maxHeight: "60vh",
+    minHeight: "60vh",
+    minWidth: "42vh",
+    maxWidth: "42vh",
+    overflow: "auto",
+    backgroundColor: "rgba(255,255,255,0.3)",
+    borderRadius: "10px",
+    boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
+    backdropFilter: "blur(4px)",
+    border: "1px solid rgba(255,255,255,0.18)",
+    flexGrow: 100,
+    display: "flex",
+    flexDirection: "column",
+    fontSize: "16px", // 调整此值以更改字体大小
+  }}
+  InputProps={{
+    disableUnderline: true,
+    style: { fontSize: "32px" } // 如果需要，也可以在这里调整输入文本的字体大小
+  }}
+/>
+
           </Grid>
 
           <Grid item="item" xs={6}>
@@ -512,46 +416,44 @@ const Editor = () => {
           >
             <InputLabel id="article-type-label">上传服务器</InputLabel>
             {isAddingNew ? (
-              <>
-                {" "}
-                <TextField
-                  value={newServer}
-                  spellCheck={false}
-                  onChange={(e) => setNewServer(e.target.value)}
-                />{" "}
-                <Button
-                  variant="contained"
-                  sx={{
-                    minWidth: "48px",
-                    height: "48px",
-                    padding: 0,
-                    boxShadow: "none", // 移除阴影
-                    backgroundColor: "#99CCFF", // 设置按钮颜色为红色
-                    "&:hover": {
-                      backgroundColor: "#f7a8b8", // 鼠标悬停时的颜色变化
-                      boxShadow: "none", // 确保悬停时不显示阴影
-                    },
-                  }}
-                  onClick={handleConfirmNewServer}
-                >
-                  确认
-                </Button>
-              </>
-            ) : (
-              <Select
-                labelId="article-type-label"
-                id="article-type-select"
-                value={articleType}
-                onChange={handleArticleTypeChange}
-              >
-                {servers.map((server, index) => (
-                  <MenuItem key={index} value={server}>
-                    {server}
-                  </MenuItem>
-                ))}
-                <MenuItem value="新增">新增</MenuItem>
-              </Select>
-            )}
+  <>
+    <TextField
+      value={newServer}
+      spellCheck={false}
+      onChange={(e) => setNewServer(e.target.value)}
+    />
+        <Box sx={{ height: '1vh' }} />
+
+    <Button
+      variant="contained"
+      onClick={handleConfirmNewServer}
+    >
+      确认
+    </Button>
+    <Box sx={{ height: '1vh' }} />
+    <Button
+      variant="contained"
+      onClick={handleCancelNewServer}
+    >
+      取消
+    </Button>
+  </>
+) : (
+  <Select
+    labelId="article-type-label"
+    id="article-type-select"
+    value={articleType}
+    onChange={handleArticleTypeChange}
+  >
+    {servers.map((server, index) => (
+      <MenuItem key={index} value={server}>
+        {server}
+      </MenuItem>
+    ))}
+    <MenuItem value="新增">新增</MenuItem>
+  </Select>
+)}
+
           </FormControl>
         </Grid>
 

@@ -5,16 +5,16 @@ const Shortcut = ({ handleInsertClick }) => {
     const handleKeyPress = (e) => {
       switch (e.key) {
         case 'F1':
-          handleInsertClick('# 标题\n\n');
+          handleInsertClick('\n\n# 标题');
           break;
         case 'F2':
-          handleInsertClick('## 标题\n\n');
+          handleInsertClick('\n\n## 标题');
           break;
         case 'F3':
-          handleInsertClick('### 标题\n\n');
+          handleInsertClick('\n\n### 标题');
           break;
         case 'F4':
-          handleInsertClick('#### 标题\n\n');
+          handleInsertClick('\n\n#### 标题');
           break;
         case 'F5': 
           handleInsertClick('**粗体**');
@@ -26,10 +26,10 @@ const Shortcut = ({ handleInsertClick }) => {
           handleInsertClick('~~删除线~~');
           break;
         case 'F8': 
-          handleInsertClick('- \n\n');
+          handleInsertClick('\n\n-');
           break;
         case 'F9': 
-          handleInsertClick('1. \n\n');
+          handleInsertClick('\n\n1.');
           break;       
         default:
           break;
