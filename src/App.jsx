@@ -9,11 +9,25 @@ import CouldDrag from "./WinLayout/couldDrag";
 
 function App() {
   const handleNewDocument = () => {
-    const totalArticles = localStorage.getItem("totalArticles");
+    let totalArticles = localStorage.getItem("totalArticles");
+    if (!totalArticles) {
+      totalArticles = 0; // 如果不存在，则初始化为 0
+    }
     const total = parseInt(totalArticles, 10) + 1;
     localStorage.setItem("totalArticles", total.toString());
-    sessionStorage.setItem("NowArticles", total.toString());
+
+    // 创建一个新的对象来存储文章信息
+    const newArticle = {
+      id: total.toString(),
+      content: "",
+      title: `未命名文档（${total}）`,
+      timestamp: new Date().getTime() // 添加时间戳
+    };
+
+    // 使用JSON.stringify()将对象转换为字符串存储
+    sessionStorage.setItem("NowArticles", JSON.stringify(newArticle));
   };
+  
   return (
     <>
       <div>

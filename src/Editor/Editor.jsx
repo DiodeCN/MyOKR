@@ -34,6 +34,7 @@ import gfm from "remark-gfm";
 const Editor = () => {
   const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [SuccessMessage, setSuccessMessage] = useState("");
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [newServer, setNewServer] = useState("");
   const [isAddressValid, setIsAddressValid] = useState(true);
@@ -78,15 +79,43 @@ const Editor = () => {
   }, []);
 
   useEffect(() => {
-    const totalArticles = localStorage.getItem("totalArticles");
-    if (totalArticles === null) {
-      localStorage.setItem("totalArticles", 1); // 如果不存在，则初始化为1
-      setDocTitle(`未命名文档（1）`); // 设置文档标题
-    } else {
-      const total = parseInt(totalArticles, 10); // 读取并转换为数字
-      setDocTitle(`未命名文档（${total}）`); // 更新文档标题
+    const nowArticles = sessionStorage.getItem("NowArticles");
+    const nowArticlesObj = nowArticles ? JSON.parse(nowArticles) : null;
+
+    if (nowArticlesObj) {
+      setDocTitle(nowArticlesObj.title); // 从 sessionStorage 设置文档标题
+      setMarkdownText(nowArticlesObj.content); // 设置 Markdown 内容
     }
   }, []);
+
+  const handleTitleChange = (event) => {
+    const newTitle = event.target.value;
+    setDocTitle(newTitle);
+  
+    updateNowArticles({ title: newTitle });
+  };
+  
+  const handleMarkdownChange = (event) => {
+    const newMarkdownText = event.target.value;
+    setMarkdownText(newMarkdownText);
+  
+    updateNowArticles({ content: newMarkdownText });
+  };
+  
+  // 创建一个通用函数来更新 sessionStorage 中的 NowArticles
+  const updateNowArticles = (updates) => {
+    const nowArticles = sessionStorage.getItem("NowArticles");
+    const nowArticlesObj = nowArticles ? JSON.parse(nowArticles) : {};
+  
+    // 更新标题或内容，同时更新时间戳
+    const updatedArticle = {
+      ...nowArticlesObj,
+      ...updates,
+      timestamp: new Date().getTime()
+    };
+  
+    sessionStorage.setItem("NowArticles", JSON.stringify(updatedArticle));
+  };
 
   const fetchWithTimeout = (url, options, timeout = 60000) => {
     return new Promise((resolve, reject) => {
@@ -281,8 +310,18 @@ const Editor = () => {
   };
 
   const handleSubmit = () => {
-    // 在这里处理提交逻辑
+    const nowArticles = sessionStorage.getItem("NowArticles");
+    if (nowArticles) {
+      // 生成一个唯一的键名用于 localStorage
+      const keyName = `Article-${JSON.parse(nowArticles).id}`;
+      localStorage.setItem(keyName, nowArticles);
+      // 提示保存成功或进行其他逻辑处理
+      console.log("文章已保存");
+      setSuccessMessage("文章已保存")
+      setOpenSnackbar(true); // 或者其他反馈机制
+    }
   };
+  
 
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
@@ -292,6 +331,7 @@ const Editor = () => {
         .writeText(markdownText)
         .then(() => {
           console.log("复制成功：", markdownText);
+          setSuccessMessage("复制成功")
           setOpenSnackbar(true); // 成功时打开 Snackbar
         })
         .catch((err) => {
@@ -344,6 +384,7 @@ const Editor = () => {
                 variant="standard"
                 value={docTitle} // 使用状态更新输入框的值
                 flex="flex"
+                onChange={handleTitleChange} // 添加 onChange 事件处理函数
                 InputProps={{
                   style: {
                     width: "100%",
@@ -418,7 +459,7 @@ const Editor = () => {
               ref={textAreaRef}
               variant="standard"
               value={markdownText}
-              onChange={(event) => setMarkdownText(event.target.value)}
+              onChange={handleMarkdownChange} // 更新 Markdown 内容的事件处理函数
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleFileDrop}
               style={{
@@ -611,7 +652,7 @@ const Editor = () => {
       </Dialog>
       <Snackbar
         open={openSnackbar}
-        autoHideDuration={600}
+        autoHideDuration={1500}
         onClose={handleCloseSnackbar}
         anchorOrigin={{
           vertical: "top",
@@ -623,7 +664,7 @@ const Editor = () => {
             sm: 70,
           }, // Additional offset from the top for small and up screen sizes
         }}
-        message="复制成功"
+        message={SuccessMessage}
         ContentProps={{
           sx: {
             backgroundColor: "green", // Red background color
