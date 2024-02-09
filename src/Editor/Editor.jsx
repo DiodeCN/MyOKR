@@ -201,18 +201,20 @@ const Editor = () => {
   };
 
   const uploadSingleFile = async (file, index) => {
-    const loadingImagePlaceholder = `![loading${index}](loading.jpg)\n\n`; // 加载中的占位符
-    const failedImageLink = `![failed${index}](failed.jpg)\n\n`; // 上传失败的图片
-
+    // 检测文件类型，区分图片和视频
+    const isVideo = file.type.startsWith("video");
+  
+    // 根据文件类型生成不同的Markdown占位符
+    const loadingPlaceholder = isVideo ? `![loading${index}](loading.jpg)\n\n` : `![loading${index}](loading.jpg)\n\n`;
+    const failedLink = isVideo ? `![failed${index}](failed.jpg)\n\n` : `![failed${index}](failed.jpg)\n\n`;
+  
     // 在开始上传前，插入加载中的占位符
-    setMarkdownText(
-      (currentText) => `${currentText}${loadingImagePlaceholder}`
-    );
-
+    setMarkdownText((currentText) => `${currentText}${loadingPlaceholder}`);
+  
     try {
       const formData = new FormData();
       formData.append("file", file);
-
+  
       const response = await fetchWithTimeout(
         `${articleType}upload`,
         {
@@ -221,17 +223,17 @@ const Editor = () => {
         },
         120000 // 120秒超时
       );
-
+  
       if (response.ok) {
         const data = await response.text();
         if (data.startsWith("上传成功：")) {
           const filename = data.substring("上传成功：".length);
-          const uploadedImageLink = `![photo${index}](${articleType}share/${filename})\n\n`;
-
-          // 替换加载中的占位符为上传成功的图片链接
-          setMarkdownText((currentText) =>
-            currentText.replace(loadingImagePlaceholder, uploadedImageLink)
-          );
+  
+          // 根据文件类型生成不同的链接
+          const link = isVideo ? `<video src="${articleType}share/${filename}" controls width="100%"></video>\n\n` : `![photo${index}](${articleType}share/${filename})\n\n`;
+  
+          // 替换加载中的占位符为上传成功的链接
+          setMarkdownText((currentText) => currentText.replace(loadingPlaceholder, link));
         } else {
           throw new Error("上传未成功，服务器未返回成功消息");
         }
@@ -240,13 +242,12 @@ const Editor = () => {
       }
     } catch (error) {
       console.error("上传错误:", error);
-      // 替换加载中的占位符为上传失败的图片链接
-      setMarkdownText((currentText) =>
-        currentText.replace(loadingImagePlaceholder, failedImageLink)
-      );
+      // 替换加载中的占位符为上传失败的链接
+      setMarkdownText((currentText) => currentText.replace(loadingPlaceholder, failedLink));
       throw error; // 重新抛出错误，以便外部捕获
     }
   };
+  
 
   const uploadFileToServer = async () => {
     if (articleType === "") {
