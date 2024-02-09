@@ -12,8 +12,7 @@ function App() {
     const totalArticles = localStorage.getItem("totalArticles");
     const total = parseInt(totalArticles, 10) + 1;
     localStorage.setItem("totalArticles", total.toString());
-
-    // 这里可以添加其他逻辑，比如页面跳转等
+    sessionStorage.setItem("NowArticles", total.toString());
   };
   return (
     <>
@@ -30,10 +29,9 @@ function App() {
         </a>
         <br />
         <button className="transparentButton" onClick={handleNewDocument}>
-          <Link to="/editor">New Document</Link> {/* 使用 Link 组件实现跳转 */}
+          <Link to="/editor">New Document</Link>
         </button>
 
-        {/*     <input type="text" id="name" name="test" required minlength="4" maxlength="8" size="10" /> */}
       </div>
       <h1>MyOKR!-ElmCose</h1>
     </>

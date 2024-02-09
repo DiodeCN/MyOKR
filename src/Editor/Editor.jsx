@@ -1,5 +1,6 @@
 import CloseButton from "../WinLayout/closeApp";
 import MaximizeButton from "../WinLayout/maximizeApp";
+import HomeButton from "../WinLayout/home";
 import CouldDrag from "../WinLayout/couldDrag"; // Import the couldDrag component
 import MinimizeButton from "../WinLayout/minimizeApp";
 import rehypeRaw from "rehype-raw";
@@ -28,6 +29,7 @@ import Grid from "@mui/material/Grid";
 
 import ReactMarkdown from "react-markdown";
 import gfm from "remark-gfm";
+
 
 const Editor = () => {
   const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
@@ -172,14 +174,16 @@ const Editor = () => {
   const uploadSingleFile = async (file, index) => {
     const loadingImagePlaceholder = `![loading${index}](loading.jpg)\n\n`; // 加载中的占位符
     const failedImageLink = `![failed${index}](failed.jpg)\n\n`; // 上传失败的图片
-  
+
     // 在开始上传前，插入加载中的占位符
-    setMarkdownText(currentText => `${currentText}${loadingImagePlaceholder}`);
-  
+    setMarkdownText(
+      (currentText) => `${currentText}${loadingImagePlaceholder}`
+    );
+
     try {
       const formData = new FormData();
       formData.append("file", file);
-  
+
       const response = await fetchWithTimeout(
         `${articleType}upload`,
         {
@@ -188,15 +192,17 @@ const Editor = () => {
         },
         120000 // 120秒超时
       );
-  
+
       if (response.ok) {
         const data = await response.text();
         if (data.startsWith("上传成功：")) {
           const filename = data.substring("上传成功：".length);
           const uploadedImageLink = `![photo${index}](${articleType}share/${filename})\n\n`;
-  
+
           // 替换加载中的占位符为上传成功的图片链接
-          setMarkdownText(currentText => currentText.replace(loadingImagePlaceholder, uploadedImageLink));
+          setMarkdownText((currentText) =>
+            currentText.replace(loadingImagePlaceholder, uploadedImageLink)
+          );
         } else {
           throw new Error("上传未成功，服务器未返回成功消息");
         }
@@ -206,7 +212,9 @@ const Editor = () => {
     } catch (error) {
       console.error("上传错误:", error);
       // 替换加载中的占位符为上传失败的图片链接
-      setMarkdownText(currentText => currentText.replace(loadingImagePlaceholder, failedImageLink));
+      setMarkdownText((currentText) =>
+        currentText.replace(loadingImagePlaceholder, failedImageLink)
+      );
       throw error; // 重新抛出错误，以便外部捕获
     }
   };
@@ -217,7 +225,7 @@ const Editor = () => {
       setOpenErrorSnackbar(true);
       return;
     }
-  
+
     for (let i = 0; i < uploadQueue.length; i++) {
       try {
         await uploadSingleFile(uploadQueue[i], i);
@@ -229,11 +237,10 @@ const Editor = () => {
         break;
       }
     }
-  
+
     // 所有文件尝试上传后（无论成功或失败），清空队列
     setUploadQueue([]);
   };
-  
 
   const handleArticleTypeChange = (event) => {
     const newArticleType = event.target.value;
@@ -257,7 +264,6 @@ const Editor = () => {
   const [markdownText, setMarkdownText] = useState("");
   const previewRef = useRef(null);
   const textAreaRef = useRef(null);
-  const markdownRef = useRef(null);
 
   useEffect(() => {
     if (previewRef.current) {
@@ -265,13 +271,6 @@ const Editor = () => {
     }
   }, [markdownText]);
 
-  useEffect(() => {
-    if (markdownRef.current) {
-      setMarkdownHeight(
-        `${markdownRef.current.getBoundingClientRect().height}px`
-      );
-    }
-  }, [markdownText]);
 
   const handleOpen = () => {
     setOpen(true);
@@ -314,6 +313,7 @@ const Editor = () => {
     <>
       {" "}
       <CouldDrag />
+      <HomeButton />
       <CloseButton />
       <MaximizeButton />
       <MinimizeButton />
@@ -339,23 +339,22 @@ const Editor = () => {
         >
           <Toolbar style={{ display: "flex", justifyContent: "space-between" }}>
             {/* 容器用于输入框 */}
-            <div>
+            <div style={{ display: "flex", alignItems: "center" }}>
               <TextField
                 variant="standard"
                 value={docTitle} // 使用状态更新输入框的值
                 flex="flex"
                 InputProps={{
                   style: {
-                    height: "3vh",
                     width: "100%",
                   },
                 }}
               />
+              .MD
             </div>
-
-            {/* 容器用于按钮 */}
             <div style={{ display: "flex", alignItems: "center" }}>
-              <Button onClick={() => handleInsertClick("# 标题\n\n")}>
+              {/* 容器用于按钮 */}
+              <Button onClick={() => handleInsertClick("\n\n# 标题")}>
                 H1
               </Button>
               <Button onClick={() => handleInsertClick("**芝士粗体**")}>
@@ -413,36 +412,36 @@ const Editor = () => {
               display: "flex",
             }}
           >
-<TextField
-  spellCheck={false}
-  multiline
-  ref={textAreaRef}
-  variant="standard"
-  value={markdownText}
-  onChange={(event) => setMarkdownText(event.target.value)}
-  onDragOver={(e) => e.preventDefault()}
-  onDrop={handleFileDrop}
-  style={{
-    maxHeight: "60vh",
-    minHeight: "60vh",
-    minWidth: "42vh",
-    maxWidth: "42vh",
-    overflow: "auto",
-    backgroundColor: "rgba(255,255,255,0.3)",
-    borderRadius: "10px",
-    boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
-    backdropFilter: "blur(4px)",
-    border: "1px solid rgba(255,255,255,0.18)",
-    flexGrow: 100,
-    display: "flex",
-    flexDirection: "column",
-    fontSize: "16px", // 调整此值以更改字体大小
-  }}
-  InputProps={{
-    disableUnderline: true,
-    style: { fontSize: "32px" } // 如果需要，也可以在这里调整输入文本的字体大小
-  }}
-/>
+            <TextField
+              spellCheck={false}
+              multiline
+              ref={textAreaRef}
+              variant="standard"
+              value={markdownText}
+              onChange={(event) => setMarkdownText(event.target.value)}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={handleFileDrop}
+              style={{
+                maxHeight: "60vh",
+                minHeight: "60vh",
+                minWidth: "42vh",
+                maxWidth: "42vh",
+                overflow: "auto",
+                backgroundColor: "rgba(255,255,255,0.3)",
+                borderRadius: "10px",
+                boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
+                backdropFilter: "blur(4px)",
+                border: "1px solid rgba(255,255,255,0.18)",
+                flexGrow: 100,
+                display: "flex",
+                flexDirection: "column",
+                fontSize: "16px", // 调整此值以更改字体大小
+              }}
+              InputProps={{
+                disableUnderline: true,
+                style: { fontSize: "28px" }, // 如果需要，也可以在这里调整输入文本的字体大小
+              }}
+            />
           </Grid>
 
           <Grid item="item" xs={6}>
