@@ -7,8 +7,8 @@ function createWindow () {
   // Calculate window size based on screen size
   const { width, height } = require('electron').screen.getPrimaryDisplay().workAreaSize
   win = new BrowserWindow({    
-    width: Math.max(Math.round(width * 0.75), 800),
-    height: Math.max(Math.round(height * 0.8), 600),
+    width: Math.max(Math.round(width * 0.4), 600),
+    height: Math.max(Math.round(height * 0.75), 800),
     preload: path.join(__dirname, 'preload.js'),
     frame: false,
     transparent: true,
@@ -24,7 +24,9 @@ function createWindow () {
 //win.setMovable(false);  // 这行代码设置窗口为不可移动
   win.setMenuBarVisibility(false);
   
-
+  const fs = require('fs');
+  const windowStatePath = path.join(app.getPath('userData'), 'window-state.json');
+  
 
 
   win.loadURL('https://localhost:5173/')

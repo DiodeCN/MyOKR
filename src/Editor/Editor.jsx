@@ -322,6 +322,10 @@ const Editor = () => {
     }
   };
   
+  const handleCancelNewServer = () => {
+    setIsAddingNew(false);
+    setNewServer(""); // 可选：清空输入的服务器地址
+};
 
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
@@ -533,23 +537,21 @@ const Editor = () => {
                   spellCheck={false}
                   onChange={(e) => setNewServer(e.target.value)}
                 />{" "}
-                <Button
-                  variant="contained"
-                  sx={{
-                    minWidth: "48px",
-                    height: "48px",
-                    padding: 0,
-                    boxShadow: "none", // 移除阴影
-                    backgroundColor: "#99CCFF", // 设置按钮颜色为红色
-                    "&:hover": {
-                      backgroundColor: "#f7a8b8", // 鼠标悬停时的颜色变化
-                      boxShadow: "none", // 确保悬停时不显示阴影
-                    },
-                  }}
-                  onClick={handleConfirmNewServer}
-                >
-                  确认
-                </Button>
+        <Box sx={{ height: '1vh' }} />
+
+    <Button
+      variant="contained"
+      onClick={handleConfirmNewServer}
+    >
+      确认
+    </Button>
+    <Box sx={{ height: '1vh' }} />
+    <Button
+      variant="contained"
+      onClick={handleCancelNewServer}
+    >
+      取消
+    </Button>
               </>
             ) : (
               <Select
