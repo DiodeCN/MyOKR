@@ -16,13 +16,14 @@ function createWindow () {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
-      backgroundColor: '#000d462e', // Set background color to transparent,
+      backgroundColor: '#00FFFFFF', // Set background color to transparent,
       ignoreCertificateErrors: true, // 添加这一行
     }
 
   })
 //win.setMovable(false);  // 这行代码设置窗口为不可移动
   win.setMenuBarVisibility(false);
+  
 
 
 

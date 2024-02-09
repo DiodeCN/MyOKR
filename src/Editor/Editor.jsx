@@ -29,9 +29,6 @@ import Grid from "@mui/material/Grid";
 import ReactMarkdown from "react-markdown";
 import gfm from "remark-gfm";
 
-import { uploadFileToServer, uploadSingleFile } from './EditorServices';
-
-
 const Editor = () => {
   const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -89,17 +86,18 @@ const Editor = () => {
     }
   }, []);
 
+  const fetchWithTimeout = (url, options, timeout = 60000) => {
+    return new Promise((resolve, reject) => {
+      fetch(url, options).then(resolve, reject);
+      setTimeout(() => reject(new Error("服务器超时请检查配置")), timeout);
+    });
+  };
+
   const [servers, setServers] = useState(() => {
     // 从localStorage获取保存的服务器列表
     const saved = localStorage.getItem("servers");
     return saved ? JSON.parse(saved) : [];
   });
-
-  const handleCancelNewServer = () => {
-    setIsAddingNew(false);
-    setNewServer(""); // 可选：清空输入的服务器地址
-};
-
 
   const handleConfirmNewServer = () => {
     const ipv4Pattern = "(\\d{1,3}\\.){3}\\d{1,3}";
@@ -171,6 +169,71 @@ const Editor = () => {
     setUploadQueue((prevQueue) => [...prevQueue, ...files]);
   };
 
+  const uploadSingleFile = async (file, index) => {
+    const loadingImagePlaceholder = `![loading${index}](loading.jpg)\n\n`; // 加载中的占位符
+    const failedImageLink = `![failed${index}](failed.jpg)\n\n`; // 上传失败的图片
+  
+    // 在开始上传前，插入加载中的占位符
+    setMarkdownText(currentText => `${currentText}${loadingImagePlaceholder}`);
+  
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+  
+      const response = await fetchWithTimeout(
+        `${articleType}upload`,
+        {
+          method: "POST",
+          body: formData,
+        },
+        120000 // 120秒超时
+      );
+  
+      if (response.ok) {
+        const data = await response.text();
+        if (data.startsWith("上传成功：")) {
+          const filename = data.substring("上传成功：".length);
+          const uploadedImageLink = `![photo${index}](${articleType}share/${filename})\n\n`;
+  
+          // 替换加载中的占位符为上传成功的图片链接
+          setMarkdownText(currentText => currentText.replace(loadingImagePlaceholder, uploadedImageLink));
+        } else {
+          throw new Error("上传未成功，服务器未返回成功消息");
+        }
+      } else {
+        throw new Error("上传失败，服务器响应异常");
+      }
+    } catch (error) {
+      console.error("上传错误:", error);
+      // 替换加载中的占位符为上传失败的图片链接
+      setMarkdownText(currentText => currentText.replace(loadingImagePlaceholder, failedImageLink));
+      throw error; // 重新抛出错误，以便外部捕获
+    }
+  };
+
+  const uploadFileToServer = async () => {
+    if (articleType === "") {
+      setErrorMessage("笨蛋，你还没有选择上传服务器!");
+      setOpenErrorSnackbar(true);
+      return;
+    }
+  
+    for (let i = 0; i < uploadQueue.length; i++) {
+      try {
+        await uploadSingleFile(uploadQueue[i], i);
+        console.log(`文件 ${uploadQueue[i].name} 上传成功`);
+      } catch (error) {
+        setErrorMessage(error.message);
+        setOpenErrorSnackbar(true);
+        // 如果上传失败，不再继续上传后续文件
+        break;
+      }
+    }
+  
+    // 所有文件尝试上传后（无论成功或失败），清空队列
+    setUploadQueue([]);
+  };
+  
 
   const handleArticleTypeChange = (event) => {
     const newArticleType = event.target.value;
@@ -194,10 +257,19 @@ const Editor = () => {
   const [markdownText, setMarkdownText] = useState("");
   const previewRef = useRef(null);
   const textAreaRef = useRef(null);
+  const markdownRef = useRef(null);
 
   useEffect(() => {
     if (previewRef.current) {
       previewRef.current.scrollTop = previewRef.current.scrollHeight;
+    }
+  }, [markdownText]);
+
+  useEffect(() => {
+    if (markdownRef.current) {
+      setMarkdownHeight(
+        `${markdownRef.current.getBoundingClientRect().height}px`
+      );
     }
   }, [markdownText]);
 
@@ -267,24 +339,23 @@ const Editor = () => {
         >
           <Toolbar style={{ display: "flex", justifyContent: "space-between" }}>
             {/* 容器用于输入框 */}
-            <div style={{ display: "flex", alignItems: "center"}}>
-
+            <div>
               <TextField
                 variant="standard"
                 value={docTitle} // 使用状态更新输入框的值
                 flex="flex"
                 InputProps={{
                   style: {
+                    height: "3vh",
                     width: "100%",
                   },
                 }}
               />
-            .MD
             </div>
-            <div style={{ display: "flex", alignItems: "center" }}>
 
             {/* 容器用于按钮 */}
-              <Button onClick={() => handleInsertClick("\n\n# 标题")}>
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <Button onClick={() => handleInsertClick("# 标题\n\n")}>
                 H1
               </Button>
               <Button onClick={() => handleInsertClick("**芝士粗体**")}>
@@ -372,7 +443,6 @@ const Editor = () => {
     style: { fontSize: "32px" } // 如果需要，也可以在这里调整输入文本的字体大小
   }}
 />
-
           </Grid>
 
           <Grid item="item" xs={6}>
@@ -416,44 +486,46 @@ const Editor = () => {
           >
             <InputLabel id="article-type-label">上传服务器</InputLabel>
             {isAddingNew ? (
-  <>
-    <TextField
-      value={newServer}
-      spellCheck={false}
-      onChange={(e) => setNewServer(e.target.value)}
-    />
-        <Box sx={{ height: '1vh' }} />
-
-    <Button
-      variant="contained"
-      onClick={handleConfirmNewServer}
-    >
-      确认
-    </Button>
-    <Box sx={{ height: '1vh' }} />
-    <Button
-      variant="contained"
-      onClick={handleCancelNewServer}
-    >
-      取消
-    </Button>
-  </>
-) : (
-  <Select
-    labelId="article-type-label"
-    id="article-type-select"
-    value={articleType}
-    onChange={handleArticleTypeChange}
-  >
-    {servers.map((server, index) => (
-      <MenuItem key={index} value={server}>
-        {server}
-      </MenuItem>
-    ))}
-    <MenuItem value="新增">新增</MenuItem>
-  </Select>
-)}
-
+              <>
+                {" "}
+                <TextField
+                  value={newServer}
+                  spellCheck={false}
+                  onChange={(e) => setNewServer(e.target.value)}
+                />{" "}
+                <Button
+                  variant="contained"
+                  sx={{
+                    minWidth: "48px",
+                    height: "48px",
+                    padding: 0,
+                    boxShadow: "none", // 移除阴影
+                    backgroundColor: "#99CCFF", // 设置按钮颜色为红色
+                    "&:hover": {
+                      backgroundColor: "#f7a8b8", // 鼠标悬停时的颜色变化
+                      boxShadow: "none", // 确保悬停时不显示阴影
+                    },
+                  }}
+                  onClick={handleConfirmNewServer}
+                >
+                  确认
+                </Button>
+              </>
+            ) : (
+              <Select
+                labelId="article-type-label"
+                id="article-type-select"
+                value={articleType}
+                onChange={handleArticleTypeChange}
+              >
+                {servers.map((server, index) => (
+                  <MenuItem key={index} value={server}>
+                    {server}
+                  </MenuItem>
+                ))}
+                <MenuItem value="新增">新增</MenuItem>
+              </Select>
+            )}
           </FormControl>
         </Grid>
 
